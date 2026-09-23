@@ -6,6 +6,7 @@
 _TMUX_PLUGIN_PLATFORM_LOADED=1
 
 _PLATFORM_OS_CACHE=""
+_PLATFORM_ARCH_CACHE=""
 
 # platform_os -> uname -s, computed once per process.
 platform_os() {
@@ -13,6 +14,19 @@ platform_os() {
     _PLATFORM_OS_CACHE="$(uname -s 2>/dev/null || echo "unknown")"
   fi
   echo "${_PLATFORM_OS_CACHE}"
+}
+
+# platform_arch -> uname -m, computed once per process.
+platform_arch() {
+  if [[ -z "${_PLATFORM_ARCH_CACHE}" ]]; then
+    _PLATFORM_ARCH_CACHE="$(uname -m 2>/dev/null || echo "unknown")"
+  fi
+  echo "${_PLATFORM_ARCH_CACHE}"
+}
+
+# is_apple_silicon -> 0 on an arm64 Mac.
+is_apple_silicon() {
+  [[ "$(platform_os)" == "Darwin" && "$(platform_arch)" == "arm64" ]]
 }
 
 # is_macos -> 0 on Darwin.
@@ -35,6 +49,8 @@ is_bsd() {
 }
 
 export -f platform_os
+export -f platform_arch
+export -f is_apple_silicon
 export -f is_macos
 export -f is_linux
 export -f is_bsd

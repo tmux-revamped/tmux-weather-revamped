@@ -162,3 +162,31 @@ teardown() {
 @test "wttr-json.sh - wttr_oneline is empty without a temperature" {
   [[ -z "$(wttr_oneline '"x": "1"' m)" ]]
 }
+
+@test "wttr-json - compaction keeps the fields the plugin reads" {
+  local json
+  json=$'{\n  "current_condition": [\n    {\n      "FeelsLikeC": "11",\n      "cloudcover": "100",\n      "temp_C": "12",\n      "weatherDesc": [\n        {\n          "value": "Patchy rain"\n        }\n      ]\n    }\n  ]\n}'
+
+  run wttr_compact "${json}"
+
+  [[ "${output}" == $'"FeelsLikeC":"11"\n"temp_C":"12"\n"value":"Patchy rain"' ]]
+}
+
+@test "wttr-json - extractors read the compacted document" {
+  local json compact
+  json=$'{\n  "temp_C": "12",\n  "humidity": "93",\n  "weatherDesc": [ { "value": "Clear" } ]\n}'
+  compact="$(wttr_compact "${json}")"
+
+  run wttr_oneline "${compact}" m
+
+  [[ "${output}" == $'Clear +12\xc2\xb0C' ]]
+}
+
+@test "wttr-json - compaction drops structure and unread keys" {
+  local json
+  json=$'{\n  "nearest_area": [ { "latitude": "1.0" } ],\n  "humidity": "40"\n}'
+
+  run wttr_compact "${json}"
+
+  [[ "${output}" == '"humidity":"40"' ]]
+}

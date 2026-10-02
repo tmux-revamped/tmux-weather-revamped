@@ -146,6 +146,12 @@ wttr_rain_chance() {
   printf '%s\n' "${1}" | awk 'BEGIN { n = 0; mx = 0; pat = "\"chanceofrain\"[ \t]*:[ \t]*\"[^\"]*\"" } match($0, pat) { if (n < 8) { s = substr($0, RSTART, RLENGTH); gsub(/[^0-9]/, "", s); if (s ~ /^[0-9]+$/ && s + 0 > mx) mx = s + 0; n++ } } END { if (n > 0) print mx }'
 }
 
+WTTR_KEPT_KEYS="temp_C temp_F FeelsLikeC FeelsLikeF humidity pressure precipMM uvIndex windspeedKmph windspeedMiles winddir16Point value moon_phase sunrise sunset maxtempC maxtempF mintempC mintempF DewPointC DewPointF chanceofrain"
+
+wttr_compact() {
+  printf '%s\n' "${1}" | awk -v keep="${WTTR_KEPT_KEYS}" 'BEGIN { n = split(keep, list, " "); for (i = 1; i <= n; i++) wanted[list[i]] = 1 } match($0, /"[A-Za-z_0-9]+"[ \t]*:[ \t]*"[^"]*"/) { s = substr($0, RSTART, RLENGTH); k = s; sub(/^"/, "", k); sub(/".*/, "", k); if (k in wanted) { sub(/"[ \t]*:[ \t]*"/, "\":\"", s); print s } }'
+}
+
 # wttr_oneline JSON UNITS -> a "<condition> +<temp>(deg)<U>" summary that the
 # text renderers parse, keeping the legacy #{weather} placeholder working off the
 # new JSON source. Empty when no temperature is present.
@@ -166,6 +172,7 @@ wttr_oneline() {
 
 export -f _wttr_unit_suffix
 export -f _wttr_value
+export -f wttr_compact
 export -f _wttr_int
 export -f wttr_temp
 export -f wttr_feels_like

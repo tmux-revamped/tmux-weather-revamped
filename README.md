@@ -54,8 +54,8 @@ example `#(weather.sh temp Tokyo)`.
 | `#{weather_forecast}` | tomorrow's low and high, for example `15-27` |
 | `#{weather_today_high}` / `#{weather_today_low}` | today's high and low |
 | `#{weather_tomorrow_high}` / `#{weather_tomorrow_low}` | tomorrow's high and low |
-| `#{weather_condition_icon}` | a Nerd Font glyph for the sky condition |
-| `#{weather_condition_tint}` | a per-condition color override, empty until you set one |
+| `#{weather_condition_icon}` | a Nerd Font Material Design glyph for the sky condition: `md-weather_sunny`, `md-weather_cloudy`, `md-weather_rainy`, `md-weather_snowy`, `md-weather_lightning` or `md-weather_fog`; set `@weather_revamped_<condition>_condition_icon` to change one |
+| `#{weather_condition_tint}` | a color for the sky condition: yellow for clear, grey for clouds and fog, blue for rain, white for snow, magenta for storms; set `@weather_revamped_<condition>_tint` to change one, or `''` to turn it off |
 | `#{weather_color}` | a tmux color style for the current temperature band, for example `#[fg=green]` |
 | `#{weather_icon}` | an icon for the current temperature band, empty until you set one |
 | `#{weather_stale_color}` | a dim style when the host has been offline past three intervals |

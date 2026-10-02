@@ -161,12 +161,12 @@ weather_condition_key() {
 # emitted through printf escapes so no literal glyph lives in the source.
 weather_condition_default_icon() {
   case "${1}" in
-    clouds) printf '' ;;
-    rain)   printf '' ;;
-    snow)   printf '' ;;
-    storm)  printf '' ;;
-    fog)    printf '' ;;
-    *)      printf '' ;;
+    clouds) printf '\xf3\xb0\x96\x90' ;;
+    rain) printf '\xf3\xb0\x96\x97' ;;
+    snow) printf '\xf3\xb0\x96\x98' ;;
+    storm) printf '\xf3\xb0\x96\x93' ;;
+    fog) printf '\xf3\xb0\x96\x91' ;;
+    *)      printf '\xf3\xb0\x96\x99' ;;
   esac
 }
 
@@ -296,10 +296,30 @@ weather_pressure_trend() {
 # weather_condition_tint TEXT -> a tmux color override for the sky condition in
 # TEXT, read from @weather_revamped_<key>_tint, empty when none is configured.
 # Lets rain or storm paint the whole segment without touching the band color.
+weather_condition_default_tint() {
+  case "${1}" in
+    storm)  printf '#[fg=magenta]' ;;
+    snow)   printf '#[fg=white]' ;;
+    rain)   printf '#[fg=blue]' ;;
+    fog)    printf '#[fg=brightblack]' ;;
+    clouds) printf '#[fg=brightblack]' ;;
+    *)      printf '#[fg=yellow]' ;;
+  esac
+}
+
+_weather_option_exists() {
+  [[ -n "$(tmux show-option -gq "${1}" 2>/dev/null)" ]]
+}
+
 weather_condition_tint() {
-  local key
+  local key option
   key=$(weather_condition_key "$(weather_condition_from_text "${1}")")
-  get_tmux_option "@weather_revamped_${key}_tint" ""
+  option="@weather_revamped_${key}_tint"
+  if _weather_option_exists "${option}"; then
+    tmux show-option -gqv "${option}" 2>/dev/null
+  else
+    weather_condition_default_tint "${key}"
+  fi
   return 0
 }
 
@@ -321,5 +341,7 @@ export -f weather_uv_color
 export -f weather_dew_comfort
 export -f weather_umbrella_hint
 export -f weather_pressure_trend
+export -f weather_condition_default_tint
+export -f _weather_option_exists
 export -f weather_condition_tint
 export -f weather_stale_color

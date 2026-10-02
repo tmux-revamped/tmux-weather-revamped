@@ -332,8 +332,9 @@ teardown() {
   [[ "$(weather_condition_tint "Partly cloudy +18${DEG}C")" == "#[fg=grey]" ]]
 }
 
-@test "weather.sh - weather_condition_tint is empty by default" {
-  [[ -z "$(weather_condition_tint "Sunny +25${DEG}C")" ]]
+@test "weather.sh - weather_condition_tint has a default per condition" {
+  [[ "$(weather_condition_tint "Sunny +25${DEG}C")" == "#[fg=yellow]" ]]
+  [[ "$(weather_condition_tint "Light rain +18${DEG}C")" == "#[fg=blue]" ]]
 }
 
 @test "weather.sh - weather_stale_color dims a long-stale reading" {
@@ -357,4 +358,26 @@ teardown() {
 @test "weather.sh - _read_weather runs curl behind a stub" {
   curl() { printf 'Sunny 20C'; }
   [[ "$(_read_weather "http://example")" == "Sunny 20C" ]]
+}
+
+@test "weather.sh - an empty tint turns the default off" {
+  _weather_option_exists() { [[ "${1}" == "@weather_revamped_rain_tint" ]]; }
+
+  run weather_condition_tint "Light rain +18${DEG}C"
+
+  [ -z "${output}" ]
+}
+
+@test "weather.sh - every condition has a default tint and icon" {
+  local key
+  for key in clear clouds rain snow storm fog; do
+    [[ -n "$(weather_condition_default_tint "${key}")" ]] || { echo "no tint for ${key}"; return 1; }
+    [[ -n "$(weather_condition_default_icon "${key}")" ]] || { echo "no icon for ${key}"; return 1; }
+  done
+}
+
+@test "weather.sh - rain gets the material rain glyph" {
+  run weather_condition_default_icon rain
+
+  [[ "${output}" == $'\xf3\xb0\x96\x97' ]]
 }

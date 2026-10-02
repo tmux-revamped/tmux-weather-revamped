@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `#{weather_condition_tint}` has a default color per condition instead of
+  rendering empty, and an empty option turns one off.
+- The condition icons are Material Design weather glyphs, which read more
+  clearly at status-bar size than the Weather Icons set.
+
 ### Fixed
 
 - Every placeholder rendered empty. The full wttr.in JSON, about 40 KB, was

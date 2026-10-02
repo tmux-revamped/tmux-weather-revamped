@@ -149,7 +149,7 @@ wttr_rain_chance() {
 WTTR_KEPT_KEYS="temp_C temp_F FeelsLikeC FeelsLikeF humidity pressure precipMM uvIndex windspeedKmph windspeedMiles winddir16Point value moon_phase sunrise sunset maxtempC maxtempF mintempC mintempF DewPointC DewPointF chanceofrain"
 
 wttr_compact() {
-  printf '%s\n' "${1}" | awk -v keep="${WTTR_KEPT_KEYS}" 'BEGIN { n = split(keep, list, " "); for (i = 1; i <= n; i++) wanted[list[i]] = 1 } match($0, /"[A-Za-z_0-9]+"[ \t]*:[ \t]*"[^"]*"/) { s = substr($0, RSTART, RLENGTH); k = s; sub(/^"/, "", k); sub(/".*/, "", k); if (k in wanted) { sub(/"[ \t]*:[ \t]*"/, "\":\"", s); print s } }'
+  printf '%s\n' "${1}" | awk -v keep="${WTTR_KEPT_KEYS}" 'BEGIN { n = split(keep, list, " "); for (i = 1; i <= n; i++) wanted[list[i]] = 1 } { rest = $0; while (match(rest, /"[A-Za-z_0-9]+"[ \t]*:[ \t]*"[^"]*"/)) { s = substr(rest, RSTART, RLENGTH); rest = substr(rest, RSTART + RLENGTH); k = s; sub(/^"/, "", k); sub(/".*/, "", k); if (k in wanted) { sub(/"[ \t]*:[ \t]*"/, "\":\"", s); print s } } }'
 }
 
 # wttr_oneline JSON UNITS -> a "<condition> +<temp>(deg)<U>" summary that the

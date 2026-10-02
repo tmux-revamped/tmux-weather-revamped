@@ -81,7 +81,7 @@ teardown() {
 
 @test "weather.sh dispatcher - weather_refresh caches a successful fetch" {
   weather_refresh
-  [[ "$(cache_get value_auto)" == "${FIXTURE}" ]]
+  [[ "$(cache_get value_auto)" == "$(wttr_compact "${FIXTURE}")" ]]
 }
 
 @test "weather.sh dispatcher - weather_refresh keeps the last value on failure" {
@@ -93,7 +93,7 @@ teardown() {
 
 @test "weather.sh dispatcher - weather_refresh_loc keys by location slug" {
   weather_refresh_loc "Tokyo"
-  [[ "$(cache_get value_Tokyo)" == "${FIXTURE}" ]]
+  [[ "$(cache_get value_Tokyo)" == "$(wttr_compact "${FIXTURE}")" ]]
 }
 
 @test "weather.sh dispatcher - weather_refresh_loc records the prior pressure" {
@@ -250,7 +250,7 @@ teardown() {
   set_tmux_option "@tmux-weather-locations" "London;Tokyo"
   run main weather Tokyo
   [[ "${output}" == "Partly cloudy +18${DEG}C" ]]
-  [[ "$(cache_get value_Tokyo)" == "${FIXTURE}" ]]
+  [[ "$(cache_get value_Tokyo)" == "$(wttr_compact "${FIXTURE}")" ]]
 }
 
 @test "weather.sh dispatcher - tick spawns one worker per location" {
@@ -271,7 +271,7 @@ teardown() {
 @test "weather.sh dispatcher - refresh subcommand fetches without rendering" {
   run main refresh
   [[ -z "${output}" ]]
-  [[ "$(cache_get value_auto)" == "${FIXTURE}" ]]
+  [[ "$(cache_get value_auto)" == "$(wttr_compact "${FIXTURE}")" ]]
 }
 
 @test "weather.sh dispatcher - unknown subcommand produces no output" {

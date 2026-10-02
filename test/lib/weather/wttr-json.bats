@@ -190,3 +190,12 @@ teardown() {
 
   [[ "${output}" == '"humidity":"40"' ]]
 }
+
+@test "wttr-json - compaction keeps every kept key on a shared line" {
+  local json
+  json='{ "time": "0", "DewPointC": "11", "chanceofrain": "10" }'
+
+  run wttr_compact "${json}"
+
+  [[ "${output}" == $'"DewPointC":"11"\n"chanceofrain":"10"' ]]
+}

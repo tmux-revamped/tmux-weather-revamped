@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stored in a tmux option, and tmux refuses a set command over about 15 KB, so
   the cache never filled. The fetch now keeps only the fields the plugin reads,
   in their original order, about 9 KB.
+- The compacted cache kept only the first field on each line, so an hourly
+  entry written on one line lost its dew point and rain chance. Every field on
+  a line is now kept.
 
 ## [1.3.0] - 2026-06-30
 

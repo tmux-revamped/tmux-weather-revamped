@@ -56,3 +56,12 @@ teardown() {
 
   [[ "$(cat "$(_mock_opt_file @weather_revamped_published)")" == "temp" ]]
 }
+
+@test "entry - a second run keeps metrics already turned into option reads" {
+  tmux set-option -gq "@weather_revamped_render" "options"
+  tmux set-option -gq "status-right" "[#{E:@weather_revamped_out_temp}]"
+
+  bash "${ENTRY}"
+
+  [[ "$(cat "$(_mock_opt_file @weather_revamped_published)")" == "temp" ]]
+}

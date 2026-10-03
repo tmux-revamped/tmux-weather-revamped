@@ -49,7 +49,7 @@ used_tokens() {
   local text="${1}" token used=""
   for token in ${WEATHER_TOKENS}; do
     case "${text}" in
-      *"$(placeholder_for "${token}")"*) used="${used:+${used} }${token}" ;;
+      *"$(placeholder_for "${token}")"* | *"@weather_revamped_out_${token}}"*) used="${used:+${used} }${token}" ;;
     esac
   done
   echo "${used}"

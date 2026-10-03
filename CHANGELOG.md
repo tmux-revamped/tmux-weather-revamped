@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- In options mode, running the entry point a second time, as two overlapping
+  config reloads do, found no placeholders left in the status line and
+  published nothing, which froze every value. A metric whose option read is
+  already on the status line now counts as used.
 - Every placeholder rendered empty. The full wttr.in JSON, about 40 KB, was
   stored in a tmux option, and tmux refuses a set command over about 15 KB, so
   the cache never filled. The fetch now keeps only the fields the plugin reads,

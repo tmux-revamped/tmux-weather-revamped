@@ -265,7 +265,7 @@ weather_publish() {
 _weather_reexec() { exec "${PLUGIN_DIR}/src/weather.sh" daemon; }
 
 weather_daemon() {
-  if ticker_run weather_revamped weather_publish "$$"; then
+  if ticker_run weather_revamped weather_publish "$$" 60; then
     _weather_reexec
   fi
 }

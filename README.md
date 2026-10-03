@@ -156,7 +156,7 @@ set -g @weather_revamped_rain_condition_icon 'RAIN'
 
 ## Render mode and fixed width
 
-By default each placeholder becomes a `#()` call, and tmux runs it on every status redraw, which can be about once a second when several plugins share the bar. Set `@weather_revamped_render` to `options` and each placeholder becomes a read of a tmux option instead, such as `#{E:@weather_revamped_out_temp}`. One background process per server renders every value the status line uses every `status-interval` seconds, writes them in a single tmux call, and redraws once. The fetch itself still runs on its own interval. The process exits after its current tick when the server stops, and a config reload replaces it.
+By default each placeholder becomes a `#()` call, and tmux runs it on every status redraw, which can be about once a second when several plugins share the bar. Set `@weather_revamped_render` to `options` and each placeholder becomes a read of a tmux option instead, such as `#{E:@weather_revamped_out_temp}`. One background process per server renders every value the status line uses every `@weather_revamped_interval` seconds, 60 by default, writes them in a single tmux call, and redraws once. The fetch itself still runs on its own interval. The process exits after its current tick when the server stops, and a config reload replaces it.
 
 Set `@weather_revamped_fixed_width` to `on` to pad the temperature on the left to five characters, such as ` 18°C`, so a change like `9°C` to `12°C` never shifts the rest of a right-aligned status line. `@weather_revamped_temp_width` sets the width directly.
 

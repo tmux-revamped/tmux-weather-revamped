@@ -11,12 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `@weather_revamped_render 'options'` replaces the `#()` calls with tmux
   option reads, written by one background process per server every
-  `status-interval` seconds, so the values change together.
+  `@weather_revamped_interval` seconds, 60 by default, so the values change together.
 - `@weather_revamped_fixed_width 'on'` pads the temperature to five characters,
   and `@weather_revamped_temp_width` sets the width directly.
 
 ### Changed
 
+- The options-mode background process reads every option it needs in one tmux
+  call per tick, sends its cache writes and published values in a second, and
+  keeps its functions out of the environment of the commands it runs. Options
+  mode ticks every `@weather_revamped_interval` seconds, 60 by default.
 - `#{weather_condition_tint}` has a default color per condition instead of
   rendering empty, and an empty option turns one off.
 - The condition icons are Material Design weather glyphs, which read more

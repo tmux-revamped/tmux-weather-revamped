@@ -265,12 +265,13 @@ weather_dew_comfort() {
 # otherwise or when CHANCE is not an integer. The hint text defaults to empty so
 # no glyph is required; set @weather_revamped_umbrella_text to enable it.
 weather_umbrella_hint() {
-  local chance="${1}" threshold
+  local chance="${1}" threshold text
   [[ "${chance}" =~ ^[0-9]+$ ]] || return 0
   threshold=$(get_tmux_option "@weather_revamped_umbrella_threshold" "50")
   [[ "${threshold}" =~ ^[0-9]+$ ]] || threshold=50
   (( chance >= threshold )) || return 0
-  get_tmux_option "@weather_revamped_umbrella_text" ""
+  text=$(get_tmux_option "@weather_revamped_umbrella_text" "")
+  printf '%s\n' "${text//\{chance\}/${chance}}"
   return 0
 }
 

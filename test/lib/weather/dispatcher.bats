@@ -457,3 +457,19 @@ teardown() {
 
   [[ "$(cat "${TEST_TMPDIR}/spawn")" == *"/src/weather.sh" ]]
 }
+
+@test "weather.sh dispatcher - the umbrella text fills in the rain chance" {
+  set_tmux_option "@weather_revamped_umbrella_text" " {chance}%"
+
+  run weather_umbrella_hint 54
+
+  [[ "${output}" == " 54%" ]]
+}
+
+@test "weather.sh dispatcher - the umbrella text stays empty below the threshold" {
+  set_tmux_option "@weather_revamped_umbrella_text" " {chance}%"
+
+  run weather_umbrella_hint 30
+
+  [[ -z "${output}" ]]
+}

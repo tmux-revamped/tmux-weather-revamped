@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `@weather_revamped_umbrella_text` accepts a `{chance}` token, replaced by
+  the rain chance, so the hint can read `54%` instead of a fixed glyph.
 - `@weather_revamped_render 'options'` replaces the `#()` calls with tmux
   option reads, written by one background process per server every
   `@weather_revamped_interval` seconds, 60 by default, so the values change together.

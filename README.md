@@ -96,7 +96,7 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 | `@tmux-weather-alert-url` | empty | the alert endpoint, with `{loc}` replaced by the location |
 | `@tmux-weather-popup-key` | empty | a key to bind the detail popup (tmux 3.2+) |
 | `@tmux-weather-refresh-key` | empty | a key to bind an immediate force-refresh |
-| `@weather_revamped_umbrella_text` | empty | the `#{weather_umbrella}` hint text |
+| `@weather_revamped_umbrella_text` | empty | the `#{weather_umbrella}` hint text; `{chance}` becomes the rain chance |
 | `@weather_revamped_umbrella_threshold` | `50` | rain chance percent at which the umbrella hint fires |
 | `@weather_revamped_alert_prefix` | empty | text prepended to `#{weather_alert}` |
 | `@weather_revamped_stale_color` | `#[dim]` | the style `#{weather_stale_color}` emits when stale |

@@ -404,3 +404,56 @@ teardown() {
   run main stale_color
   [[ "${output}" == "#[dim]" ]]
 }
+
+@test "weather.sh dispatcher - publish writes every published token in one batch" {
+  export PUBLISH_LOG="${TEST_TMPDIR}/publish.log"
+  _publish_tmux() { [[ "${1}" == "list-clients" ]] && return 0; printf '%s\n' "$@" > "${PUBLISH_LOG}"; }
+  main() { printf 'v-%s' "${1}"; }
+  set_tmux_option "@weather_revamped_published" "temp humidity"
+
+  weather_publish
+
+  [[ "$(paste -sd'|' "${PUBLISH_LOG}")" == "set-option|-gq|@weather_revamped_out_temp|v-temp|;|set-option|-gq|@weather_revamped_out_humidity|v-humidity" ]]
+}
+
+@test "weather.sh dispatcher - fixed width pads the temperature" {
+  set_tmux_option "@weather_revamped_fixed_width" "on"
+
+  run main temp
+
+  [[ "${output}" == " 18${DEG}C" ]]
+}
+
+@test "weather.sh dispatcher - the daemon re-executes after the tick limit" {
+  ticker_run() { return 0; }
+  _weather_reexec() { echo "reexec" > "${TEST_TMPDIR}/reexec"; }
+
+  weather_daemon
+
+  [[ "$(cat "${TEST_TMPDIR}/reexec")" == "reexec" ]]
+}
+
+@test "weather.sh dispatcher - the daemon stops when it loses ownership" {
+  ticker_run() { return 1; }
+  _weather_reexec() { echo "reexec" > "${TEST_TMPDIR}/reexec"; }
+
+  weather_daemon
+
+  [ ! -f "${TEST_TMPDIR}/reexec" ]
+}
+
+@test "weather.sh dispatcher - main daemon runs the ticker" {
+  weather_daemon() { echo "daemon" > "${TEST_TMPDIR}/daemon"; }
+
+  main daemon
+
+  [[ "$(cat "${TEST_TMPDIR}/daemon")" == "daemon" ]]
+}
+
+@test "weather.sh dispatcher - main start spawns the daemon" {
+  _ticker_spawn() { printf '%s' "${1}" > "${TEST_TMPDIR}/spawn"; }
+
+  main start
+
+  [[ "$(cat "${TEST_TMPDIR}/spawn")" == *"/src/weather.sh" ]]
+}

@@ -18,17 +18,41 @@ rain_chance umbrella uv_color uv dew_point dew_comfort moon sunrise sunset \
 forecast today_high today_low tomorrow_high tomorrow_low condition_icon \
 condition_tint stale_color alert color icon temp weather"
 
+render_mode="$(tmux show-option -gqv "@weather_revamped_render")"
+
+placeholder_for() {
+  if [ "${1}" = "weather" ]; then
+    printf '#{weather}'
+  else
+    printf '#{weather_%s}' "${1}"
+  fi
+}
+
+target_for() {
+  if [ "${render_mode}" = "options" ]; then
+    printf '#{E:@weather_revamped_out_%s}' "${1}"
+  else
+    printf '#(%s %s)' "${WEATHER_CMD}" "${1}"
+  fi
+}
+
 interpolate() {
   local value="${1}" token placeholder
   for token in ${WEATHER_TOKENS}; do
-    if [ "${token}" = "weather" ]; then
-      placeholder="#{weather}"
-    else
-      placeholder="#{weather_${token}}"
-    fi
-    value="${value//${placeholder}/#(${WEATHER_CMD} ${token})}"
+    placeholder="$(placeholder_for "${token}")"
+    value="${value//${placeholder}/$(target_for "${token}")}"
   done
   echo "${value}"
+}
+
+used_tokens() {
+  local text="${1}" token used=""
+  for token in ${WEATHER_TOKENS}; do
+    case "${text}" in
+      *"$(placeholder_for "${token}")"*) used="${used:+${used} }${token}" ;;
+    esac
+  done
+  echo "${used}"
 }
 
 update_option() {
@@ -40,8 +64,15 @@ update_option() {
 
 chmod +x "${WEATHER_CMD}" 2>/dev/null || true
 
+status_text="$(tmux show-option -gqv status-left) $(tmux show-option -gqv status-right)"
+tmux set-option -gq "@weather_revamped_published" "$(used_tokens "${status_text}")"
+
 update_option "status-left"
 update_option "status-right"
+
+if [ "${render_mode}" = "options" ]; then
+  "${WEATHER_CMD}" start 2>/dev/null || true
+fi
 
 # Opt-in key bindings. Unset by default so nothing clashes with user keys.
 POPUP_KEY=$(tmux show-option -gqv "@tmux-weather-popup-key")

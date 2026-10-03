@@ -25,6 +25,10 @@ source "${PLUGIN_DIR}/src/lib/tmux/tmux-ops.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/utils/cache.sh"
 # shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/utils/publish.sh"
+# shellcheck source=/dev/null
+source "${PLUGIN_DIR}/src/lib/utils/ticker.sh"
+# shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/utils/has-command.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/weather/weather.sh"
@@ -250,6 +254,22 @@ weather_doctor() {
   fi
 }
 
+weather_publish() {
+  local token
+  for token in $(get_tmux_option "@weather_revamped_published" ""); do
+    publish_add "@weather_revamped_out_${token}" "$(main "${token}")"
+  done
+  publish_commit
+}
+
+_weather_reexec() { exec "${PLUGIN_DIR}/src/weather.sh" daemon; }
+
+weather_daemon() {
+  if ticker_run weather_revamped weather_publish "$$"; then
+    _weather_reexec
+  fi
+}
+
 main() {
   local cmd="${1:-}" arg="${2:-}"
 
@@ -257,6 +277,8 @@ main() {
     refresh)    weather_refresh "${arg}"; return 0 ;;
     popup)      weather_popup "${arg}"; return 0 ;;
     doctor)     weather_doctor; return 0 ;;
+    start)      ticker_start "${PLUGIN_DIR}/src/weather.sh"; return 0 ;;
+    daemon)     weather_daemon; return 0 ;;
     popup_card)
       local pslug punits
       pslug=$(_weather_loc_slug "${arg:-$(weather_primary_location)}")
@@ -277,7 +299,7 @@ main() {
 
   case "${cmd}" in
     weather)        printf '%s' "${oneline}" ;;
-    temp)           weather_render_temp "${oneline}" ;;
+    temp)           publish_pad "$(weather_render_temp "${oneline}")" "$(publish_width weather_revamped temp 5)" ;;
     color)          weather_render_color "${oneline}" ;;
     icon)           weather_render_icon "${oneline}" ;;
     condition_icon) weather_render_condition_icon "${oneline}" ;;

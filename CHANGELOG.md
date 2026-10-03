@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `@weather_revamped_render 'options'` replaces the `#()` calls with tmux
+  option reads, written by one background process per server every
+  `status-interval` seconds, so the values change together.
+- `@weather_revamped_fixed_width 'on'` pads the temperature to five characters,
+  and `@weather_revamped_temp_width` sets the width directly.
+
 ### Changed
 
 - `#{weather_condition_tint}` has a default color per condition instead of

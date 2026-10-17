@@ -99,6 +99,24 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 | `@weather_revamped_umbrella_threshold` | `50` | rain chance percent at which the umbrella hint fires |
 | `@weather_revamped_alert_prefix` | empty | text prepended to `#{weather_alert}` |
 | `@weather_revamped_stale_color` | `#[dim]` | the style `#{weather_stale_color}` emits when stale |
+| `@weather_revamped_pressure_delta` | `1` | hPa change versus the previous fetch beyond which `#{weather_pressure_trend}` reports rising or falling |
+| `@weather_revamped_pressure_rising` | `^` | mark `#{weather_pressure_trend}` shows when pressure is rising |
+| `@weather_revamped_pressure_falling` | `v` | mark `#{weather_pressure_trend}` shows when pressure is falling |
+| `@weather_revamped_pressure_steady` | `=` | mark `#{weather_pressure_trend}` shows when pressure is steady |
+| `@weather_revamped_uv_<band>_color` | per band, below | the color `#{weather_uv_color}` emits for one UV band: `low`, `moderate`, `high`, `very_high` or `extreme` |
+| `@weather_revamped_uv_low_color` | `#[fg=green]` | UV 0 to 2 |
+| `@weather_revamped_uv_moderate_color` | `#[fg=yellow]` | UV 3 to 5 |
+| `@weather_revamped_uv_high_color` | `#[fg=colour208]` | UV 6 to 7 |
+| `@weather_revamped_uv_very_high_color` | `#[fg=red]` | UV 8 to 10 |
+| `@weather_revamped_uv_extreme_color` | `#[fg=magenta]` | UV 11 and above |
+
+### Internal state
+
+The plugin manages these options itself. Do not set them.
+
+| Option | Holds |
+|--------|-------|
+| `@weather_revamped_published` | space-separated placeholders the status line uses, set at load so the options-mode worker publishes only those |
 
 ### Temperature bands
 

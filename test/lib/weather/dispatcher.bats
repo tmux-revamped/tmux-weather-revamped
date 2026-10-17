@@ -10,7 +10,6 @@ setup() {
   FIXTURE="$(cat "${BATS_TEST_DIRNAME}/../../fixtures/wttr-london.j1.json")"
   export FIXTURE
   DEG="$(printf '\xc2\xb0')"
-  # Default fetch seam returns the fixture, never the network.
   weather_fetch() { printf '%s' "${FIXTURE}"; }
   export -f weather_fetch
 }

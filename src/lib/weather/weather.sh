@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-#
-# weather.sh: weather string acquisition from wttr.in.
-#
-# weather_build_url is pure. The network fetch lives behind a seam and runs only
-# inside the background worker, so a slow or down endpoint never blocks the render.
 
 [[ -n "${_WEATHER_REVAMPED_WEATHER_LOADED:-}" ]] && return 0
 _WEATHER_REVAMPED_WEATHER_LOADED=1
@@ -12,17 +7,11 @@ _WEATHER_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "${_WEATHER_SCRIPT_DIR}/../tmux/tmux-ops.sh"
 
-# Seconds before the HTTP request is abandoned.
 WEATHER_TIMEOUT="${WEATHER_TIMEOUT:-10}"
 
-# weather_build_url LOCATION UNITS FORMAT -> a wttr.in request URL.
 weather_build_url() {
   local location="${1}" units="${2}" format="${3}"
-  # A place name with spaces, like "New York", breaks the bare URL. wttr.in
-  # accepts a plus for each space, so encode them before building the request.
   location="${location// /+}"
-  # Accept friendly aliases for the unit: Fahrenheit and Celsius spellings, plus
-  # the wttr.in m and u flags. Anything unrecognized falls back to metric.
   local unit_flag
   case "${units}" in
     u | f | F | fahrenheit | Fahrenheit | imperial) unit_flag="&u" ;;
@@ -31,34 +20,24 @@ weather_build_url() {
   echo "https://wttr.in/${location}?format=${format}${unit_flag}"
 }
 
-# Host-probe seam. Tests override this.
 _read_weather() {
   curl -s --max-time "${WEATHER_TIMEOUT}" "${1}" 2>/dev/null
 }
 
-# weather_fetch URL -> the response body, empty on failure or a wttr.in error.
 weather_fetch() {
   local body
   body=$(_read_weather "${1}")
-  # wttr.in returns a plain error sentence when a location cannot be resolved.
   case "${body}" in
     *"Unknown location"*|*"ERROR"*|*"Sorry"*) echo "" ;;
     *) printf '%s' "${body}" ;;
   esac
 }
 
-# weather_temp_from_text TEXT -> the signed integer temperature, empty when none.
-# A wttr.in one-line value carries the temperature as a signed number before a
-# degree mark, for example "+18C clear" or "-3°C". The awk grabs the first such
-# token and strips its sign-preserving prefix.
 weather_temp_from_text() {
   local text="${1}"
   echo "${text}" | awk 'match($0, /[+-]?[0-9]+[^0-9A-Za-z ]*[CF]/) { s=substr($0, RSTART, RLENGTH); gsub(/[^0-9+-]/, "", s); print s+0; exit }'
 }
 
-# weather_band CELSIUS -> a temperature band name, empty when CELSIUS is not an
-# integer. Thresholds are hardcoded: freezing <0, cold 0-9, cool 10-17,
-# comfortable 18-23, hot 24-31, very_hot >=32.
 weather_band() {
   local celsius="${1}"
   [[ "${celsius}" =~ ^-?[0-9]+$ ]] || return 0
@@ -77,7 +56,6 @@ weather_band() {
   fi
 }
 
-# _weather_band_default_color BAND -> the built-in color for a band.
 _weather_band_default_color() {
   case "${1}" in
     freezing)    echo "#[fg=blue]" ;;
@@ -90,8 +68,6 @@ _weather_band_default_color() {
   esac
 }
 
-# weather_render_color TEXT -> the tmux color style for the temperature in TEXT,
-# read from @weather_revamped_<band>_color, empty when no band is parsed.
 weather_render_color() {
   local band
   band=$(weather_band "$(weather_temp_from_text "${1}")")
@@ -99,8 +75,6 @@ weather_render_color() {
   get_tmux_option "@weather_revamped_${band}_color" "$(_weather_band_default_color "${band}")"
 }
 
-# weather_render_icon TEXT -> the icon for the temperature in TEXT, read from
-# @weather_revamped_<band>_icon, empty by default so no Nerd Font is required.
 weather_render_icon() {
   local band
   band=$(weather_band "$(weather_temp_from_text "${1}")")
@@ -108,24 +82,16 @@ weather_render_icon() {
   get_tmux_option "@weather_revamped_${band}_icon" ""
 }
 
-# weather_temp_display_from_text TEXT -> the temperature token for display, with a
-# leading plus removed, for example "Partly cloudy +25°C" -> "25°C".
 weather_temp_display_from_text() {
   local tok
   tok=$(echo "${1}" | awk 'match($0, /[+-]?[0-9]+[^0-9A-Za-z ]*[CF]/) { print substr($0, RSTART, RLENGTH); exit }')
   printf '%s' "${tok#+}"
 }
 
-# weather_strip_units TOKEN -> the display token with the trailing C or F unit
-# letter removed, keeping the degree mark, for example "25°C" -> "25°". Lets a
-# crowded status bar show the number alone.
 weather_strip_units() {
   printf '%s' "${1%[CF]}"
 }
 
-# weather_render_temp TEXT -> the temperature for display: the leading plus is
-# always dropped, and when @tmux-weather-hide-units is on the C or F unit letter
-# is dropped too.
 weather_render_temp() {
   local disp
   disp=$(weather_temp_display_from_text "${1}")
@@ -135,15 +101,10 @@ weather_render_temp() {
   esac
 }
 
-# weather_condition_from_text TEXT -> the sky condition words, the part of TEXT
-# before the temperature token, for example "Partly cloudy +25°C" -> "Partly
-# cloudy". Empty when no temperature is present.
 weather_condition_from_text() {
   echo "${1}" | awk 'match($0, /[+-]?[0-9]+[^0-9A-Za-z ]*[CF]/) { c=substr($0, 1, RSTART-1); gsub(/(^[ \t]+|[ \t]+$)/, "", c); print c; exit }'
 }
 
-# weather_condition_key CONDITION -> a normalized key. Storm and snow are checked
-# before rain so "thundery rain" maps to storm and "sleet" to snow.
 weather_condition_key() {
   local c
   c=$(printf '%s' "${1}" | tr '[:upper:]' '[:lower:]')
@@ -157,8 +118,6 @@ weather_condition_key() {
   esac
 }
 
-# weather_condition_default_icon KEY -> the built-in Nerd Font weather glyph,
-# emitted through printf escapes so no literal glyph lives in the source.
 weather_condition_default_icon() {
   case "${1}" in
     clouds) printf '\xf3\xb0\x96\x90' ;;
@@ -170,10 +129,7 @@ weather_condition_default_icon() {
   esac
 }
 
-# weather_render_condition_icon TEXT -> the Nerd Font glyph for the sky condition
-# in TEXT, overridable via @weather_revamped_<key>_condition_icon.
 weather_render_condition_icon() {
-  # A single switch to hide the sky glyph without editing the status format.
   case "$(get_tmux_option "@weather_revamped_show_condition_icon" "on")" in
     off | 0 | no | false) return 0 ;;
   esac
@@ -198,14 +154,6 @@ export -f weather_condition_key
 export -f weather_condition_default_icon
 export -f weather_render_condition_icon
 
-# --- Presentation helpers for the enriched single-fetch reading ---------------
-# These take already-extracted numbers or strings and turn them into status-bar
-# tokens: bands, comfort words, hints, and trend marks. They stay pure so each
-# is covered with fixture inputs and no network.
-
-# weather_uv_band UV -> a UV exposure band, empty when UV is not an integer.
-# Bands follow the WHO scale: low 0-2, moderate 3-5, high 6-7, very_high 8-10,
-# extreme 11+.
 weather_uv_band() {
   local uv="${1}"
   [[ "${uv}" =~ ^[0-9]+$ ]] || return 0
@@ -222,7 +170,6 @@ weather_uv_band() {
   fi
 }
 
-# _weather_uv_default_color BAND -> the built-in color for a UV band.
 _weather_uv_default_color() {
   case "${1}" in
     low)       echo "#[fg=green]" ;;
@@ -234,8 +181,6 @@ _weather_uv_default_color() {
   esac
 }
 
-# weather_uv_color UV -> the tmux color for the UV band, overridable through
-# @weather_revamped_uv_<band>_color, empty when UV is not an integer.
 weather_uv_color() {
   local band
   band=$(weather_uv_band "${1}")
@@ -243,9 +188,6 @@ weather_uv_color() {
   get_tmux_option "@weather_revamped_uv_${band}_color" "$(_weather_uv_default_color "${band}")"
 }
 
-# weather_dew_comfort DEW_C -> a comfort word from the Celsius dew point: dry
-# below 13, comfortable 13-15, humid 16-18, oppressive 19 and up. Empty when the
-# dew point is not an integer.
 weather_dew_comfort() {
   local dew="${1}"
   [[ "${dew}" =~ ^-?[0-9]+$ ]] || return 0
@@ -260,10 +202,6 @@ weather_dew_comfort() {
   fi
 }
 
-# weather_umbrella_hint CHANCE -> the configured umbrella hint when the rain
-# chance reaches @weather_revamped_umbrella_threshold (default 50), empty
-# otherwise or when CHANCE is not an integer. The hint text defaults to empty so
-# no glyph is required; set @weather_revamped_umbrella_text to enable it.
 weather_umbrella_hint() {
   local chance="${1}" threshold text
   [[ "${chance}" =~ ^[0-9]+$ ]] || return 0
@@ -275,10 +213,6 @@ weather_umbrella_hint() {
   return 0
 }
 
-# weather_pressure_trend CURRENT PREVIOUS -> a trend mark comparing two pressure
-# readings: rising, falling, or steady within @weather_revamped_pressure_delta
-# (default 1) hPa. Marks default to ASCII and are overridable. Empty when either
-# reading is not an integer.
 weather_pressure_trend() {
   local cur="${1}" prev="${2}" delta
   [[ "${cur}" =~ ^-?[0-9]+$ ]] || return 0
@@ -294,9 +228,6 @@ weather_pressure_trend() {
   fi
 }
 
-# weather_condition_tint TEXT -> a tmux color override for the sky condition in
-# TEXT, read from @weather_revamped_<key>_tint, empty when none is configured.
-# Lets rain or storm paint the whole segment without touching the band color.
 weather_condition_default_tint() {
   case "${1}" in
     storm)  printf '#[fg=magenta]' ;;
@@ -324,10 +255,6 @@ weather_condition_tint() {
   return 0
 }
 
-# weather_stale_color AGE MAX_AGE -> a dim style when the reading is older than
-# three refresh intervals, signalling a long offline stretch. Empty while fresh
-# or when either argument is not an integer. Overridable via
-# @weather_revamped_stale_color.
 weather_stale_color() {
   local age="${1}" max_age="${2}"
   [[ "${age}" =~ ^[0-9]+$ ]] || return 0

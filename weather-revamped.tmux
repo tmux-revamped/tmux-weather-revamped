@@ -1,18 +1,8 @@
 #!/usr/bin/env bash
-#
-# weather-revamped.tmux: TPM entry point.
-#
-# Replaces every #{weather*} placeholder in status-left and status-right with a
-# call to the dispatcher. One background fetch carries the whole reading, so the
-# render never waits on the network. Optionally binds a detail-popup key and a
-# force-refresh key when the user sets them.
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEATHER_CMD="${PLUGIN_DIR}/src/weather.sh"
 
-# Every placeholder maps to the dispatcher subcommand of the same suffix. Listed
-# longest-first is unnecessary because each token carries its closing brace, but
-# the order is kept readable.
 WEATHER_TOKENS="feels_like wind humidity pressure_trend pressure precip \
 rain_chance umbrella uv_color uv dew_point dew_comfort moon sunrise sunset \
 forecast today_high today_low tomorrow_high tomorrow_low condition_icon \
@@ -75,8 +65,6 @@ if [ "${render_mode}" = "options" ]; then
   "${WEATHER_CMD}" start 2>/dev/null || true
 fi
 
-# The popup key defaults to the one the family allocation gives this plugin; the
-# refresh key is opt-in.
 HASH="#"
 QUOTED_CMD=$(printf '%q' "${WEATHER_CMD}")
 QUOTED_CMD="${QUOTED_CMD//"${HASH}"/${HASH}${HASH}}"

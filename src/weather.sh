@@ -1,18 +1,4 @@
 #!/usr/bin/env bash
-#
-# weather.sh: command dispatcher for tmux-weather-revamped.
-#
-# A single background fetch of wttr.in/<loc>?format=j1 carries the whole reading.
-# The hot path reads the cached JSON from a tmux user-option and the pure
-# extractors in wttr-json.sh derive every placeholder from it, so no render ever
-# waits on the network and no second request is made for the extra fields.
-#
-# Usage: weather.sh <subcommand> [location]
-#   weather feels_like wind humidity pressure pressure_trend precip rain_chance
-#   umbrella uv uv_color dew_point dew_comfort moon sunrise sunset forecast
-#   today_high today_low tomorrow_high tomorrow_low temp color icon
-#   condition_icon condition_tint stale_color alert popup popup_card doctor
-#   refresh
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WEATHER_CMD="${PLUGIN_DIR}/src/weather.sh"
@@ -35,7 +21,6 @@ source "${PLUGIN_DIR}/src/lib/weather/weather.sh"
 # shellcheck source=/dev/null
 source "${PLUGIN_DIR}/src/lib/weather/wttr-json.sh"
 
-# weather_max_age -> the refresh interval in seconds from @tmux-weather-interval.
 weather_max_age() {
   local minutes
   minutes=$(get_tmux_option "@tmux-weather-interval" "15")
@@ -43,13 +28,10 @@ weather_max_age() {
   echo $(( minutes * 60 ))
 }
 
-# _weather_units -> the configured unit family, metric by default.
 _weather_units() {
   get_tmux_option "@tmux-weather-units" "m"
 }
 
-# _weather_loc_slug LOCATION -> a cache-key-safe slug, "auto" for the empty
-# (IP-detected) location.
 _weather_loc_slug() {
   local slug
   slug=$(printf '%s' "${1}" | tr -c 'A-Za-z0-9_' '_')
@@ -57,20 +39,14 @@ _weather_loc_slug() {
   printf '%s' "${slug}"
 }
 
-# _weather_prev_pressure_opt SLUG -> the option holding the prior pressure read.
 _weather_prev_pressure_opt() {
   echo "@${CACHE_PREFIX}_${1}_pressure_prev"
 }
 
-# _weather_ok_ts_opt SLUG -> the option holding the epoch of the last successful
-# fetch. The cache timestamp re-stamps on failure to back off, so a separate
-# stamp is what tells #{weather_stale_color} how long the host has been offline.
 _weather_ok_ts_opt() {
   echo "@${CACHE_PREFIX}_${1}_ok_ts"
 }
 
-# _weather_success_age SLUG -> seconds since the last successful fetch for SLUG,
-# or a large sentinel when none has succeeded.
 _weather_success_age() {
   local ts now
   ts=$(get_tmux_option "$(_weather_ok_ts_opt "${1}")" "")
@@ -82,9 +58,6 @@ _weather_success_age() {
   echo $(( now - ts ))
 }
 
-# weather_locations -> one location per line. A ;-separated @tmux-weather-locations
-# wins; otherwise the single @tmux-weather-location, which may be empty for IP
-# detection. Always emits at least one line.
 weather_locations() {
   local raw
   raw=$(get_tmux_option "@tmux-weather-locations" "")
@@ -95,13 +68,10 @@ weather_locations() {
   fi
 }
 
-# weather_primary_location -> the first configured location.
 weather_primary_location() {
   weather_locations | head -n 1
 }
 
-# weather_alerts_enabled -> 0 when @tmux-weather-alerts opts in to the second
-# (severe-weather) endpoint. Off by default.
 weather_alerts_enabled() {
   case "$(get_tmux_option "@tmux-weather-alerts" "off")" in
     on | 1 | yes | true) return 0 ;;
@@ -109,8 +79,6 @@ weather_alerts_enabled() {
   esac
 }
 
-# weather_alert_build_url LOCATION -> the configured alert endpoint with {loc}
-# replaced, empty when @tmux-weather-alert-url is unset.
 weather_alert_build_url() {
   local url loc
   url=$(get_tmux_option "@tmux-weather-alert-url" "")
@@ -119,28 +87,20 @@ weather_alert_build_url() {
   printf '%s' "${url//\{loc\}/${loc}}"
 }
 
-# _read_alert URL -> the alert endpoint body. Host-probe seam; tests override it.
 _read_alert() {
   curl -s --max-time "${WEATHER_TIMEOUT}" "${1}" 2>/dev/null
 }
 
-# weather_alert_fetch URL -> the first line of the alert body, empty on failure
-# or when URL is empty.
 weather_alert_fetch() {
   [[ -z "${1}" ]] && return 0
   publish_escape "$(_read_alert "${1}" | awk 'NF { print; exit }')"
 }
 
-# weather_render_alert TEXT -> a badge for a non-empty alert, prefixed by the
-# optional @weather_revamped_alert_prefix. Empty when there is no alert.
 weather_render_alert() {
   [[ -z "${1}" ]] && return 0
   printf '%s%s' "$(get_tmux_option "@weather_revamped_alert_prefix" "")" "${1}"
 }
 
-# weather_refresh_loc LOCATION -> fetch the j1 reading for LOCATION into its cache
-# key, keeping the last good value on failure. Records the prior pressure first
-# so #{weather_pressure_trend} can compare across fetches.
 weather_refresh_loc() {
   local loc="${1}" slug key url value prev
   slug=$(_weather_loc_slug "${loc}")
@@ -157,23 +117,17 @@ weather_refresh_loc() {
   fi
 }
 
-# weather_refresh_alert LOCATION -> fetch the severe-weather alert for LOCATION
-# into its alert cache key. Always stores, so a cleared alert clears the badge.
 weather_refresh_alert() {
   local loc="${1}" slug
   slug=$(_weather_loc_slug "${loc}")
   cache_set "alert_${slug}" "$(weather_alert_fetch "$(weather_alert_build_url "${loc}")")"
 }
 
-# weather_refresh [LOCATION] -> force a synchronous refresh of one location,
-# defaulting to the primary. Used by the force-refresh key.
 weather_refresh() {
   local loc="${1:-$(weather_primary_location)}"
   weather_refresh_loc "${loc}"
 }
 
-# weather_tick -> trigger a background refresh per configured location when its
-# reading is stale, plus an alert refresh per location when alerts are enabled.
 weather_tick() {
   local max loc
   max=$(weather_max_age)
@@ -187,8 +141,6 @@ weather_tick() {
   done < <(weather_locations)
 }
 
-# weather_popup_card JSON UNITS LOCATION -> a multi-line detail card built purely
-# from the cached reading, with no re-probing.
 weather_popup_card() {
   local json="${1}" units="${2}" loc="${3}" deg label suffix
   deg=$(printf '\xc2\xb0')
@@ -211,21 +163,16 @@ weather_popup_card() {
     "$(wttr_tomorrow_low "${json}" "${units}")" "$(wttr_tomorrow_high "${json}" "${units}")" "${deg}" "${suffix}"
 }
 
-# _tmux ARGS... -> tmux seam for the popup. Tests override it so no popup opens.
 _tmux() {
   tmux "$@"
 }
 
-# weather_popup [LOCATION] -> open the detail card in a tmux popup (3.2+),
-# rendered by re-invoking this script so the popup reads the same cache.
 weather_popup() {
   local loc="${1:-$(weather_primary_location)}" command
   command=$(printf '%q popup_card %q' "${WEATHER_CMD}" "${loc}")
   _tmux display-popup -E "$(publish_escape "${command}")"
 }
 
-# weather_doctor -> a capability report: tooling, configuration, and which fields
-# the current primary reading yields.
 weather_doctor() {
   local loc slug json units
   loc=$(weather_primary_location)

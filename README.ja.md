@@ -4,19 +4,19 @@
 
 <strong>wttr.inの天気をバックグラウンドで取得し、ステータスバーを待たせずに表示します。</strong>
 
-[English](README.md) &nbsp;|&nbsp; 日本語 &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
+[English](README.md) | 日本語 | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
 
 [![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 <p align="center">
-  <a href="#機能">機能</a> &nbsp;|&nbsp;
-  <a href="#動作要件">動作要件</a> &nbsp;|&nbsp;
-  <a href="#インストール">インストール</a> &nbsp;|&nbsp;
-  <a href="#使い方">使い方</a> &nbsp;|&nbsp;
-  <a href="#設定">設定</a> &nbsp;|&nbsp;
-  <a href="#キーバインド">キーバインド</a> &nbsp;|&nbsp;
+  <a href="#機能">機能</a> |
+  <a href="#動作要件">動作要件</a> |
+  <a href="#インストール">インストール</a> |
+  <a href="#使い方">使い方</a> |
+  <a href="#設定">設定</a> |
+  <a href="#キーバインド">キーバインド</a> |
   <a href="#仕組み">仕組み</a>
 </p>
 

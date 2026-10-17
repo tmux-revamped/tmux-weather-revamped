@@ -4,19 +4,19 @@
 
 <strong>在后台从 wttr.in 获取天气并显示在状态栏，状态栏无需等待。</strong>
 
-[English](README.md) &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; 简体中文 &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
+[English](README.md) | [日本語](README.ja.md) | 简体中文 | [繁體中文（香港）](README.zh-HK.md)
 
 [![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 <p align="center">
-  <a href="#功能">功能</a> &nbsp;|&nbsp;
-  <a href="#环境要求">环境要求</a> &nbsp;|&nbsp;
-  <a href="#安装">安装</a> &nbsp;|&nbsp;
-  <a href="#用法">用法</a> &nbsp;|&nbsp;
-  <a href="#配置">配置</a> &nbsp;|&nbsp;
-  <a href="#快捷键">快捷键</a> &nbsp;|&nbsp;
+  <a href="#功能">功能</a> |
+  <a href="#环境要求">环境要求</a> |
+  <a href="#安装">安装</a> |
+  <a href="#用法">用法</a> |
+  <a href="#配置">配置</a> |
+  <a href="#快捷键">快捷键</a> |
   <a href="#工作原理">工作原理</a>
 </p>
 

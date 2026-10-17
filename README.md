@@ -1,317 +1,264 @@
 <div align="center">
 
-<h1>tmux-weather-revamped</h1>
+# tmux-weather-revamped
 
-**Weather in your tmux status bar, fetched in the background so the render never waits on the network.**
+<strong>Weather for the tmux status bar from wttr.in, fetched in the background so the status line never waits.</strong>
 
-[![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
+English &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
+
+[![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
+
+<p align="center">
+  <a href="#what-it-does">What it does</a> &nbsp;|&nbsp;
+  <a href="#requirements">Requirements</a> &nbsp;|&nbsp;
+  <a href="#installation">Installation</a> &nbsp;|&nbsp;
+  <a href="#usage">Usage</a> &nbsp;|&nbsp;
+  <a href="#configuration">Configuration</a> &nbsp;|&nbsp;
+  <a href="#key-bindings">Key bindings</a> &nbsp;|&nbsp;
+  <a href="#how-it-works">How it works</a>
+</p>
 
 </div>
 
-**28** placeholders · **95%+** coverage
+**28** status placeholders from **1** wttr.in request per location, every **15** minutes by default. A failed fetch keeps the last good reading on screen.
 
-A weather lookup is an HTTP request, the slowest thing a status bar can do inline. This plugin runs `curl` with a hard timeout inside a detached worker, caches the result in a tmux server user-option, and serves the status line from that cache. No temp files are used, and a failed fetch keeps the last good reading on screen.
+---
 
-Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather). Built from [tmux-plugin-template](https://github.com/tmux-revamped/tmux-plugin-template). Weather data comes from [wttr.in](https://github.com/chubin/wttr.in).
+## What it does
 
-<table>
-<tr>
-<td><b>Non-blocking</b><br/>The fetch runs in a detached worker, so the status render returns instantly.</td>
-<td><b>No temp files</b><br/>The reading lives in a tmux server user-option, not on disk.</td>
-</tr>
-<tr>
-<td><b>Cross-platform</b><br/>Runs anywhere `curl` is on <code>PATH</code>, on every supported architecture.</td>
-<td><b>Tested</b><br/>A 95%+ coverage floor guards every code path.</td>
-</tr>
-</table>
-
-## Placeholders
-
-A single background fetch of the wttr.in `j1` JSON carries the whole reading, so
-every placeholder below is derived from one cached request with no extra network
-call. Each placeholder also accepts a location name when you run several, for
-example `#(weather.sh temp Tokyo)`.
+The plugin fetches the wttr.in `j1` JSON for your location in a detached background job, keeps the fields it needs in a tmux option, and renders every placeholder from that stored copy. The status line reads the stored copy and returns at once, whether the network is up or not.
 
 | Placeholder | Output |
-|-------------|--------|
-| `#{weather}` | the one-line forecast, for example `Partly cloudy +18°C` |
-| `#{weather_temp}` | just the temperature, leading plus removed, for example `18°C` |
-| `#{weather_feels_like}` | the feels-like temperature number, for example `16` |
-| `#{weather_wind}` | wind speed and direction, for example `11km/h NW` |
-| `#{weather_humidity}` | relative humidity percentage, for example `65` |
-| `#{weather_pressure}` | barometric pressure in hPa, for example `1013` |
-| `#{weather_pressure_trend}` | a trend mark versus the previous fetch: `^`, `v`, or `=` |
-| `#{weather_precip}` | precipitation in millimetres, for example `0.2` |
-| `#{weather_rain_chance}` | the worst rain chance across today's hours, for example `60` |
-| `#{weather_umbrella}` | the umbrella hint text when rain chance crosses the threshold |
-| `#{weather_uv}` | the UV index, for example `5` |
-| `#{weather_uv_color}` | a tmux color for the UV band |
-| `#{weather_dew_point}` | the mean dew point for today, for example `12` |
-| `#{weather_dew_comfort}` | a comfort word: `dry`, `comfortable`, `humid`, `oppressive` |
-| `#{weather_moon}` | today's moon phase, for example `Waning Gibbous` |
-| `#{weather_sunrise}` | today's sunrise time, for example `06:00 AM` |
-| `#{weather_sunset}` | today's sunset time, for example `06:45 PM` |
-| `#{weather_forecast}` | tomorrow's low and high, for example `15-27` |
-| `#{weather_today_high}` / `#{weather_today_low}` | today's high and low |
-| `#{weather_tomorrow_high}` / `#{weather_tomorrow_low}` | tomorrow's high and low |
-| `#{weather_condition_icon}` | a Nerd Font Material Design glyph for the sky condition: `md-weather_sunny`, `md-weather_cloudy`, `md-weather_rainy`, `md-weather_snowy`, `md-weather_lightning` or `md-weather_fog`; set `@weather_revamped_<condition>_condition_icon` to change one |
-| `#{weather_condition_tint}` | a color for the sky condition: yellow for clear, grey for clouds and fog, blue for rain, white for snow, magenta for storms; set `@weather_revamped_<condition>_tint` to change one, or `''` to turn it off |
-| `#{weather_color}` | a tmux color style for the current temperature band, for example `#[fg=green]` |
-| `#{weather_icon}` | an icon for the current temperature band, empty until you set one |
-| `#{weather_stale_color}` | a dim style when the host has been offline past three intervals |
-| `#{weather_alert}` | a severe-weather badge, empty unless alerts are enabled |
+|:------------|:-------|
+| `#{weather}` | condition and temperature, such as `Partly cloudy +18°C` |
+| `#{weather_temp}` | temperature without the leading plus, such as `18°C` |
+| `#{weather_feels_like}` | feels-like temperature, such as `16` |
+| `#{weather_wind}` | wind speed and direction, such as `11km/h NW` |
+| `#{weather_humidity}` | relative humidity in percent |
+| `#{weather_pressure}` | pressure in hPa |
+| `#{weather_pressure_trend}` | `^`, `v` or `=` against the previous successful fetch |
+| `#{weather_precip}` | precipitation in millimetres |
+| `#{weather_rain_chance}` | the highest rain chance among today's first eight forecast slots |
+| `#{weather_umbrella}` | your umbrella text once the rain chance reaches the threshold |
+| `#{weather_uv}` | UV index |
+| `#{weather_uv_color}` | a tmux style for the UV band |
+| `#{weather_dew_point}` | mean dew point of today's first eight forecast slots |
+| `#{weather_dew_comfort}` | `dry`, `comfortable`, `humid` or `oppressive` |
+| `#{weather_moon}` | moon phase, such as `Waning Gibbous` |
+| `#{weather_sunrise}` | sunrise, such as `06:00 AM` |
+| `#{weather_sunset}` | sunset, such as `06:45 PM` |
+| `#{weather_forecast}` | tomorrow's low and high, such as `15-27` |
+| `#{weather_today_high}` | today's high |
+| `#{weather_today_low}` | today's low |
+| `#{weather_tomorrow_high}` | tomorrow's high |
+| `#{weather_tomorrow_low}` | tomorrow's low |
+| `#{weather_condition_icon}` | a Nerd Font Material Design glyph for the sky condition |
+| `#{weather_condition_tint}` | a tmux style for the sky condition |
+| `#{weather_color}` | a tmux style for the temperature band, such as `#[fg=green]` |
+| `#{weather_icon}` | your icon for the temperature band, empty until set |
+| `#{weather_stale_color}` | `#[dim]` once the last successful fetch is older than three intervals |
+| `#{weather_alert}` | a severe-weather line, empty unless alerts are on |
 
-Pair the color with the value, and reset afterward, to tint the reading by
-temperature. A clean Nerd Font layout is the condition glyph, then the
-temperature, colored by band:
+## Requirements
 
-```tmux
-set -g status-right '#{weather_color}#{weather_condition_icon} #{weather_temp}#[default] '
-```
+| Tool | Version | Used for |
+|:-----|:--------|:---------|
+| tmux | 3.2 or later | the detail popup uses `display-popup` |
+| bash | 3.2 or later | macOS `/bin/bash` works |
+| `curl` | any | every fetch, with a 10 second timeout |
+| network access to `wttr.in` | | the weather source |
 
-## Install
+CI runs the test suite on Ubuntu LTS for x86_64 and arm64 with GNU and uutils coreutils, and on macOS for Apple Silicon and Intel with the system tools, GNU tools and uutils.
 
-With [TPM](https://github.com/tmux-plugins/tpm):
+## Installation
+
+With [TPM](https://github.com/tmux-plugins/tpm), add the plugin and a placeholder to `~/.tmux.conf`, then press `prefix + I`:
 
 ```tmux
 set -g @plugin 'tmux-revamped/tmux-weather-revamped'
 set -g status-right '#{weather} '
 ```
 
-Press `prefix + I` to install. `curl` must be on `PATH`.
+Without TPM, clone the repository and run the entry point after your `status-right` is set:
 
-## Configuration
+```bash
+git clone https://github.com/tmux-revamped/tmux-weather-revamped ~/.tmux/plugins/tmux-weather-revamped
+```
 
-| Option | Default | Meaning |
-|--------|---------|---------|
-| `@tmux-weather-location` | empty | a city or location; empty auto-detects by IP |
-| `@tmux-weather-units` | `m` | Celsius or Fahrenheit; accepts `m`/`c`/`celsius` and `u`/`f`/`fahrenheit` |
-| `@tmux-weather-interval` | `15` | minutes between background fetches |
-| `@tmux-weather-hide-units` | `off` | set to `on` to drop the `C`/`F` unit letter from `#{weather_temp}`, keeping just the number and degree mark |
-| `@weather_revamped_show_condition_icon` | `on` | set to `off` to hide the sky glyph from `#{weather_condition_icon}` |
-| `@weather_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/weather-revamped-logs` |
-| `@tmux-weather-locations` | empty | a `;`-separated list of locations; each gets its own background worker and cache |
-| `@tmux-weather-alerts` | `off` | set to `on` to fetch the second severe-weather endpoint |
-| `@tmux-weather-alert-url` | empty | the alert endpoint, with `{loc}` replaced by the location |
-| `@tmux-weather-popup-key` | `M-w` | the key bound to the detail popup (tmux 3.2+); set `off` to bind nothing |
-| `@tmux-weather-refresh-key` | empty | a key to bind an immediate force-refresh |
-| `@weather_revamped_umbrella_text` | empty | the `#{weather_umbrella}` hint text; `{chance}` becomes the rain chance |
-| `@weather_revamped_umbrella_threshold` | `50` | rain chance percent at which the umbrella hint fires |
-| `@weather_revamped_alert_prefix` | empty | text prepended to `#{weather_alert}` |
-| `@weather_revamped_stale_color` | `#[dim]` | the style `#{weather_stale_color}` emits when stale |
-| `@weather_revamped_pressure_delta` | `1` | hPa change versus the previous fetch beyond which `#{weather_pressure_trend}` reports rising or falling |
-| `@weather_revamped_pressure_rising` | `^` | mark `#{weather_pressure_trend}` shows when pressure is rising |
-| `@weather_revamped_pressure_falling` | `v` | mark `#{weather_pressure_trend}` shows when pressure is falling |
-| `@weather_revamped_pressure_steady` | `=` | mark `#{weather_pressure_trend}` shows when pressure is steady |
-| `@weather_revamped_uv_<band>_color` | per band, below | the color `#{weather_uv_color}` emits for one UV band: `low`, `moderate`, `high`, `very_high` or `extreme` |
-| `@weather_revamped_uv_low_color` | `#[fg=green]` | UV 0 to 2 |
-| `@weather_revamped_uv_moderate_color` | `#[fg=yellow]` | UV 3 to 5 |
-| `@weather_revamped_uv_high_color` | `#[fg=colour208]` | UV 6 to 7 |
-| `@weather_revamped_uv_very_high_color` | `#[fg=red]` | UV 8 to 10 |
-| `@weather_revamped_uv_extreme_color` | `#[fg=magenta]` | UV 11 and above |
+```tmux
+run-shell ~/.tmux/plugins/tmux-weather-revamped/weather-revamped.tmux
+```
 
-### Internal state
+[`examples/status-right.tmux.conf`](examples/status-right.tmux.conf) holds a complete configuration.
 
-The plugin manages these options itself. Do not set them.
+## Usage
 
-| Option | Holds |
-|--------|-------|
-| `@weather_revamped_published` | space-separated placeholders the status line uses, set at load so the options-mode worker publishes only those |
+Set a location, or leave it empty to let wttr.in locate you by IP:
+
+```tmux
+set -g @tmux-weather-location 'Sao Paulo'
+set -g status-right '#{weather_color}#{weather_condition_icon} #{weather_temp}#[default] '
+```
+
+The first render after a cold start is empty while the first fetch runs. A richer line uses more placeholders from the same reading, with no extra request:
+
+```tmux
+set -g status-right '#{weather_temp} #{weather_wind} #{weather_humidity}%% UV#{weather_uv} #{weather_forecast} '
+```
 
 ### Temperature bands
 
-`#{weather_color}` and `#{weather_icon}` classify the current temperature into a
-band, then read a per-band color and icon. The temperature is parsed from the
-cached wttr.in value, so no extra fetch happens. Bands use these Celsius
-thresholds:
+`#{weather_color}` and `#{weather_icon}` read the option for the band the current temperature falls in. The bands use Celsius thresholds whatever the display units are.
 
-| Band | Range (°C) | Default color | Color option | Icon option |
-|------|------------|---------------|--------------|-------------|
-| freezing | below 0 | `#[fg=blue]` | `@weather_revamped_freezing_color` | `@weather_revamped_freezing_icon` |
-| cold | 0 to 9 | `#[fg=cyan]` | `@weather_revamped_cold_color` | `@weather_revamped_cold_icon` |
-| cool | 10 to 17 | `#[fg=green]` | `@weather_revamped_cool_color` | `@weather_revamped_cool_icon` |
-| comfortable | 18 to 23 | `#[fg=green]` | `@weather_revamped_comfortable_color` | `@weather_revamped_comfortable_icon` |
-| hot | 24 to 31 | `#[fg=yellow]` | `@weather_revamped_hot_color` | `@weather_revamped_hot_icon` |
-| very_hot | 32 and up | `#[fg=red]` | `@weather_revamped_very_hot_color` | `@weather_revamped_very_hot_icon` |
+| Band | Range in °C | Default color |
+|:-----|:------------|:--------------|
+| `freezing` | below 0 | `#[fg=blue]` |
+| `cold` | 0 to 9 | `#[fg=cyan]` |
+| `cool` | 10 to 17 | `#[fg=green]` |
+| `comfortable` | 18 to 23 | `#[fg=green]` |
+| `hot` | 24 to 31 | `#[fg=yellow]` |
+| `very_hot` | 32 and up | `#[fg=red]` |
 
-Every icon option defaults to empty, so no Nerd Font is required. Set the ones
-you want:
-
-```tmux
-set -g @weather_revamped_freezing_icon 'COLD '
-set -g @weather_revamped_hot_color '#[fg=colour208]'
-```
-
-When the temperature cannot be parsed, both placeholders render empty.
+Each band reads `@weather_revamped_<band>_color` and `@weather_revamped_<band>_icon`. The icons default to empty, so no Nerd Font is needed until you set one.
 
 ### Sky conditions
 
-`#{weather_condition_icon}` reads the wttr.in condition text and maps it to a
-Nerd Font weather glyph. The condition comes from the same cached reading as
-the temperature. Conditions are normalized into six keys, each with a Nerd Font default that you
-can override:
+The condition text maps to one of six keys, checked in this order, so a thundery shower is a storm and sleet is snow:
 
-| Key | Matches conditions containing | Icon option |
-|-----|-------------------------------|-------------|
-| clear | sun, clear | `@weather_revamped_clear_condition_icon` |
-| clouds | cloud, overcast | `@weather_revamped_clouds_condition_icon` |
-| rain | rain, drizzle, shower | `@weather_revamped_rain_condition_icon` |
-| snow | snow, sleet, blizzard, ice | `@weather_revamped_snow_condition_icon` |
-| storm | thunder, storm | `@weather_revamped_storm_condition_icon` |
-| fog | fog, mist, haze | `@weather_revamped_fog_condition_icon` |
+| Key | Condition contains | Default tint |
+|:----|:-------------------|:-------------|
+| `storm` | thunder, storm | `#[fg=magenta]` |
+| `snow` | snow, sleet, blizzard, ice | `#[fg=white]` |
+| `rain` | rain, drizzle, shower | `#[fg=blue]` |
+| `fog` | fog, mist, haze | `#[fg=brightblack]` |
+| `clouds` | cloud, overcast | `#[fg=brightblack]` |
+| `clear` | anything else | `#[fg=yellow]` |
 
-Storm and snow are matched before rain, so a thundery shower maps to storm and
-sleet to snow. Override any key to a different glyph or plain text:
+Set `@weather_revamped_<key>_condition_icon` to change a glyph and `@weather_revamped_<key>_tint` to change a tint. A tint option set to an empty string turns that tint off.
+
+### Several locations
+
+`@tmux-weather-locations` takes a `;`-separated list. Each location gets its own background fetch and its own stored reading. The `#{weather*}` placeholders show the first location. Call the script with a location name for the others:
 
 ```tmux
-set -g @weather_revamped_rain_condition_icon 'RAIN'
+set -g @tmux-weather-locations 'London;Tokyo;New York'
+set -g status-right '#{weather_temp} #(~/.tmux/plugins/tmux-weather-revamped/src/weather.sh temp Tokyo) '
 ```
 
-## Render mode and fixed width
+### Severe-weather alerts
 
-By default each placeholder becomes a `#()` call, and tmux runs it on every status redraw, which can be about once a second when several plugins share the bar. Set `@weather_revamped_render` to `options` and each placeholder becomes a read of a tmux option instead, such as `#{E:@weather_revamped_out_temp}`. One background process per server renders every value the status line uses every `@weather_revamped_interval` seconds, 60 by default, writes them in a single tmux call, and redraws once. The fetch itself still runs on its own interval. The process exits after its current tick when the server stops, and a config reload replaces it.
+Alerts are off by default and use a second endpoint you choose. `{loc}` in the URL becomes the location. The first non-empty line of the response becomes `#{weather_alert}`, after `@weather_revamped_alert_prefix`.
 
-Set `@weather_revamped_fixed_width` to `on` to pad the temperature on the left to five characters, such as ` 18°C`, so a change like `9°C` to `12°C` never shifts the rest of a right-aligned status line. `@weather_revamped_temp_width` sets the width directly.
+```tmux
+set -g @tmux-weather-alerts 'on'
+set -g @tmux-weather-alert-url 'https://example.com/alerts/{loc}'
+set -g @weather_revamped_alert_prefix '[!] '
+```
+
+### Render mode and fixed width
+
+By default each placeholder becomes a `#()` call, which tmux reruns on every status redraw. Set `@weather_revamped_render` to `options` and each placeholder becomes an option read such as `#{E:@weather_revamped_out_temp}`. One background process per server renders every value the status line uses every `@weather_revamped_interval` seconds and writes them in one tmux call. The fetch keeps its own interval.
+
+`@weather_revamped_fixed_width 'on'` pads `#{weather_temp}` on the left to five characters, so a change from `9°C` to `12°C` does not shift the rest of the line. `@weather_revamped_temp_width` sets the width directly.
 
 ```tmux
 set -g @weather_revamped_render 'options'
 set -g @weather_revamped_fixed_width 'on'
 ```
 
-## One fetch, the whole reading
+### Doctor
 
-The background worker requests the wttr.in `j1` JSON once per interval and caches
-it in a tmux user-option. Every placeholder reads that one document, so adding
-wind, humidity, UV, dew point, pressure, sun and moon times, and the tomorrow
-forecast costs no extra request. A rich line might read:
-
-```tmux
-set -g status-right '#{weather_color}#{weather_condition_icon} #{weather_temp} #[default]#{weather_wind} #{weather_humidity}%% UV#{weather_uv} #{weather_forecast} '
-```
-
-`#{weather_uv_color}` colors the UV index by WHO band, and `#{weather_dew_comfort}`
-turns the dew point into a comfort word. `#{weather_pressure_trend}` compares the
-latest reading to the previous fetch and shows `^`, `v`, or `=`.
-`#{weather_umbrella}` stays empty until the rain chance crosses
-`@weather_revamped_umbrella_threshold`, then shows your
-`@weather_revamped_umbrella_text`.
-
-## Multiple locations
-
-Set `@tmux-weather-locations` to a `;`-separated list to track several places at
-once. Each location runs its own background worker into its own cache option, so
-one slow lookup never blocks another. Address a location by name on any
-placeholder:
-
-```tmux
-set -g @tmux-weather-locations 'London;Tokyo;New York'
-set -g status-right '#(~/.tmux/plugins/tmux-weather-revamped/src/weather.sh temp London) #(~/.tmux/plugins/tmux-weather-revamped/src/weather.sh temp Tokyo) '
-```
-
-## Severe-weather alerts
-
-Alerts are off by default and use a second endpoint. Turn them on and point them
-at an endpoint that returns a short alert line, with `{loc}` replaced by the
-location:
-
-```tmux
-set -g @tmux-weather-alerts 'on'
-set -g @tmux-weather-alert-url 'https://example.com/alerts/{loc}'
-set -g @weather_revamped_alert_prefix '[!] '
-set -g status-right '#{weather_alert}#{weather} '
-```
-
-`#{weather_alert}` stays empty when there is no alert, so the badge appears only
-when it matters.
-
-## Detail popup and refresh keys
-
-`prefix + M-w` opens a full card built from the cached reading, no re-probing.
-A second key forcing an immediate refresh is opt-in and unset by default. Either
-key can be moved, and the popup key set to `off` binds nothing:
-
-```tmux
-set -g @tmux-weather-popup-key 'W'
-set -g @tmux-weather-refresh-key 'R'
-```
-
-The popup shows condition, feels-like, wind, humidity, pressure, UV, dew
-point, precipitation, sun and moon times, and today and tomorrow's range. The
-popup needs tmux 3.2 or newer.
-
-## Doctor
-
-```sh
+```bash
 ~/.tmux/plugins/tmux-weather-revamped/src/weather.sh doctor
 ```
 
-Reports whether `curl` is on `PATH`, the configured units, interval, locations,
-and whether the current reading parsed, so an empty token is easy to explain.
+It prints whether `curl` is on `PATH`, the units, the interval, whether alerts are on, the locations, and the age, temperature and condition of the stored reading.
 
-## Theme color suggestions
+## Configuration
 
-The defaults use the 16 ANSI color names, which the active terminal theme remaps,
-so the bands match whatever theme you run out of the box. For exact hex values
-that pin a band to a specific shade, copy one block below.
+| Option | Default | Meaning |
+|:-------|:--------|:--------|
+| `@tmux-weather-location` | empty | city or place. Empty lets wttr.in locate you by IP |
+| `@tmux-weather-locations` | empty | `;`-separated list. Overrides the single location |
+| `@tmux-weather-units` | `m` | metric. `u`, `f` or `fahrenheit` switch temperatures to Fahrenheit and wind to mph |
+| `@tmux-weather-interval` | `15` | minutes between fetches |
+| `@tmux-weather-hide-units` | `off` | `on` drops the `C` or `F` from `#{weather_temp}` |
+| `@tmux-weather-alerts` | `off` | `on` fetches the alert endpoint |
+| `@tmux-weather-alert-url` | empty | alert endpoint, with `{loc}` replaced by the location |
+| `@tmux-weather-popup-key` | `M-w` | prefix key for the detail popup. `off` binds nothing |
+| `@tmux-weather-refresh-key` | empty | prefix key that fetches now |
+| `@weather_revamped_show_condition_icon` | `on` | `off` empties `#{weather_condition_icon}` |
+| `@weather_revamped_<key>_condition_icon` | Material Design glyph | glyph for one sky condition key |
+| `@weather_revamped_<key>_tint` | per key, above | style for one sky condition key |
+| `@weather_revamped_<band>_color` | per band, above | style for one temperature band |
+| `@weather_revamped_<band>_icon` | empty | icon for one temperature band |
+| `@weather_revamped_umbrella_text` | empty | text for `#{weather_umbrella}`. `{chance}` becomes the rain chance |
+| `@weather_revamped_umbrella_threshold` | `50` | rain chance in percent at which the umbrella text shows |
+| `@weather_revamped_alert_prefix` | empty | text before `#{weather_alert}` |
+| `@weather_revamped_stale_color` | `#[dim]` | style `#{weather_stale_color}` emits once the reading is stale |
+| `@weather_revamped_pressure_delta` | `1` | hPa change beyond which the trend is rising or falling |
+| `@weather_revamped_pressure_rising` | `^` | rising mark |
+| `@weather_revamped_pressure_falling` | `v` | falling mark |
+| `@weather_revamped_pressure_steady` | `=` | steady mark |
+| `@weather_revamped_uv_low_color` | `#[fg=green]` | UV 0 to 2 |
+| `@weather_revamped_uv_moderate_color` | `#[fg=yellow]` | UV 3 to 5 |
+| `@weather_revamped_uv_high_color` | `#[fg=colour208]` | UV 6 to 7 |
+| `@weather_revamped_uv_very_high_color` | `#[fg=red]` | UV 8 to 10 |
+| `@weather_revamped_uv_extreme_color` | `#[fg=magenta]` | UV 11 and up |
+| `@weather_revamped_render` | empty | `options` turns on render mode |
+| `@weather_revamped_interval` | `60` | seconds between render-mode ticks |
+| `@weather_revamped_fixed_width` | `off` | `on` pads the temperature to five characters |
+| `@weather_revamped_temp_width` | empty | explicit width for the temperature |
 
-### Catppuccin Mocha
+The colors are the 16 ANSI names, so they follow your terminal theme. To pin exact shades, set the band options to hex values.
+
+<details>
+<summary><strong>Hex colors for six themes</strong></summary>
 
 ```tmux
+# Catppuccin Mocha
 set -g @weather_revamped_freezing_color '#[fg=#89b4fa]'
 set -g @weather_revamped_cold_color '#[fg=#94e2d5]'
 set -g @weather_revamped_cool_color '#[fg=#a6e3a1]'
 set -g @weather_revamped_comfortable_color '#[fg=#a6e3a1]'
 set -g @weather_revamped_hot_color '#[fg=#f9e2af]'
 set -g @weather_revamped_very_hot_color '#[fg=#f38ba8]'
-```
 
-### Dracula
-
-```tmux
+# Dracula
 set -g @weather_revamped_freezing_color '#[fg=#bd93f9]'
 set -g @weather_revamped_cold_color '#[fg=#8be9fd]'
 set -g @weather_revamped_cool_color '#[fg=#50fa7b]'
 set -g @weather_revamped_comfortable_color '#[fg=#50fa7b]'
 set -g @weather_revamped_hot_color '#[fg=#f1fa8c]'
 set -g @weather_revamped_very_hot_color '#[fg=#ff5555]'
-```
 
-### Nord
-
-```tmux
+# Nord
 set -g @weather_revamped_freezing_color '#[fg=#81a1c1]'
 set -g @weather_revamped_cold_color '#[fg=#88c0d0]'
 set -g @weather_revamped_cool_color '#[fg=#a3be8c]'
 set -g @weather_revamped_comfortable_color '#[fg=#a3be8c]'
 set -g @weather_revamped_hot_color '#[fg=#ebcb8b]'
 set -g @weather_revamped_very_hot_color '#[fg=#bf616a]'
-```
 
-### Gruvbox Dark
-
-```tmux
+# Gruvbox Dark
 set -g @weather_revamped_freezing_color '#[fg=#83a598]'
 set -g @weather_revamped_cold_color '#[fg=#8ec07c]'
 set -g @weather_revamped_cool_color '#[fg=#b8bb26]'
 set -g @weather_revamped_comfortable_color '#[fg=#b8bb26]'
 set -g @weather_revamped_hot_color '#[fg=#fabd2f]'
 set -g @weather_revamped_very_hot_color '#[fg=#fb4934]'
-```
 
-### Tokyo Night
-
-```tmux
+# Tokyo Night
 set -g @weather_revamped_freezing_color '#[fg=#7aa2f7]'
 set -g @weather_revamped_cold_color '#[fg=#7dcfff]'
 set -g @weather_revamped_cool_color '#[fg=#9ece6a]'
 set -g @weather_revamped_comfortable_color '#[fg=#9ece6a]'
 set -g @weather_revamped_hot_color '#[fg=#e0af68]'
 set -g @weather_revamped_very_hot_color '#[fg=#f7768e]'
-```
 
-### Solarized Dark
-
-```tmux
+# Solarized Dark
 set -g @weather_revamped_freezing_color '#[fg=#268bd2]'
 set -g @weather_revamped_cold_color '#[fg=#2aa198]'
 set -g @weather_revamped_cool_color '#[fg=#859900]'
@@ -320,23 +267,60 @@ set -g @weather_revamped_hot_color '#[fg=#b58900]'
 set -g @weather_revamped_very_hot_color '#[fg=#dc322f]'
 ```
 
-## Support by platform and architecture
+</details>
 
-Works on every supported platform and architecture. The only requirement is
-`curl` on `PATH`, which ships with macOS (Intel and Apple Silicon) and is a one
-package install on Linux (x86_64 and arm64).
+### Internal state
+
+The plugin manages these options itself. Do not set them.
+
+| Option | Holds |
+|:-------|:------|
+| `@weather_revamped_value_<location>` | the stored reading for one location, with `_ts` and `_lock` companions for its age and the running fetch |
+| `@weather_revamped_alert_<location>` | the stored alert line for one location |
+| `@weather_revamped_<location>_ok_ts` | the time of the last successful fetch, read by `#{weather_stale_color}` |
+| `@weather_revamped_<location>_pressure_prev` | the pressure from the previous successful fetch, read by the trend |
+| `@weather_revamped_published` | the placeholders the status line uses, recorded at load so render mode publishes only those |
+| `@weather_revamped_out_<name>` | each rendered value in render mode |
+| `@weather_revamped_ticker_pid` | the process that owns render mode |
+| `@weather_revamped_option_names` | the options render mode reads in one tmux call per tick |
+
+`<location>` is the location name with every character outside `A-Z`, `a-z`, `0-9` and `_` replaced by `_`, or `auto` for an empty location.
+
+## Key bindings
+
+| Key | Option | Action |
+|:----|:-------|:-------|
+| `prefix + M-w` | `@tmux-weather-popup-key` | open a card built from the stored reading for the first location |
+| unbound | `@tmux-weather-refresh-key` | fetch the first location now |
+
+The card shows the condition, temperature and feels-like, wind, humidity, pressure, UV, dew point with its comfort word, precipitation and rain chance, sunrise, sunset, the moon phase, and today's and tomorrow's ranges. It reads the stored copy and makes no request.
+
+## How it works
+
+```mermaid
+graph LR
+    Status[status line] -->|reads| Stored[stored reading in a tmux option]
+    Status -->|when stale| Job[background job]
+    Job -->|curl, 10 s timeout| Wttr[wttr.in j1 JSON]
+    Job -->|kept fields only| Stored
+```
+
+At load, [`weather-revamped.tmux`](weather-revamped.tmux) replaces each placeholder in the status line with a call to [`src/weather.sh`](src/weather.sh), or with an option read in render mode, and binds the keys. Each render checks the age of the stored reading. When it is older than `@tmux-weather-interval`, a detached subshell takes a lock and fetches, and the render returns the stored copy without waiting. The lock expires after 20 seconds, so a fetch that dies does not block the next one.
+
+A response containing `Unknown location`, `ERROR` or `Sorry` is discarded and the previous reading stays. A successful response is cut down to the 22 JSON fields the plugin reads, which keeps the stored copy at about 9 KB instead of the 40 KB or so that wttr.in sends. Every `#` in the condition text and the alert line is doubled before it reaches the status line, so a response cannot run a tmux format.
 
 ## Development
 
-```sh
-bats test          # run the suite
-shellcheck src/**/*.sh   # lint
-kcov coverage bats test  # coverage
-```
+| Command | What it runs |
+|:--------|:-------------|
+| `make test` | the bats suite |
+| `make lint` | shellcheck at warning level on every shell file |
+| `make coverage` | kcov line coverage with a 95 percent floor, Linux only |
+| [`family/bin/audit`](family/bin/audit) | this repository against the family contract |
 
 ## License
 
-[MIT](LICENSE), copyright Gustavo Franco.
+[MIT](LICENSE), copyright Gustavo Franco. Weather data comes from [wttr.in](https://github.com/chubin/wttr.in). Inspired by [tmux-weather](https://github.com/ilya-manin/tmux-weather).
 
 <!-- family:begin -->
 
@@ -359,26 +343,26 @@ memory, and `family/bin/sweep` is how it is discharged.
 | [`tmux-bluetooth-revamped`](https://github.com/tmux-revamped/tmux-bluetooth-revamped) | Every connected Bluetooth device and its battery in your tmux status bar, without blocking the render |
 | [`tmux-cpu-revamped`](https://github.com/tmux-revamped/tmux-cpu-revamped) | CPU load, temperature, and frequency in your tmux status bar, without ever blocking the render |
 | [`tmux-disk-revamped`](https://github.com/tmux-revamped/tmux-disk-revamped) | Disk usage for your tmux status bar, without ever blocking the status render |
-| [`tmux-extract-revamped`](https://github.com/tmux-revamped/tmux-extract-revamped) | Fuzzy-grab any URL, path, or word off the screen and paste it, pure shell, no Python |
-| [`tmux-fzf-revamped`](https://github.com/tmux-revamped/tmux-fzf-revamped) | Jump to any session, window, or pane, or kill it, from one fzf popup |
-| [`tmux-git-revamped`](https://github.com/tmux-revamped/tmux-git-revamped) | Git repository status in your tmux status bar, without ever blocking the render |
-| [`tmux-gpu-revamped`](https://github.com/tmux-revamped/tmux-gpu-revamped) | GPU load, temperature, frequency, and memory for your tmux status bar |
-| [`tmux-kube-revamped`](https://github.com/tmux-revamped/tmux-kube-revamped) | Current Kubernetes context and namespace in your tmux status bar, async, kubectl-free, never blocking |
+| [`tmux-extract-revamped`](https://github.com/tmux-revamped/tmux-extract-revamped) | Pick a URL, path, hash or any other token off the screen with fzf and type it at the cursor, in pure shell |
+| [`tmux-fzf-revamped`](https://github.com/tmux-revamped/tmux-fzf-revamped) | Switch to, kill, rename or create tmux sessions, windows and panes from fzf pickers in a popup |
+| [`tmux-git-revamped`](https://github.com/tmux-revamped/tmux-git-revamped) | Show the active pane's git branch, changes and provider counts in the tmux status bar without blocking it |
+| [`tmux-gpu-revamped`](https://github.com/tmux-revamped/tmux-gpu-revamped) | GPU load, temperature, clock, power and memory in the tmux status bar, from NVIDIA, AMD, Intel and Apple GPUs |
+| [`tmux-kube-revamped`](https://github.com/tmux-revamped/tmux-kube-revamped) | Current Kubernetes context and namespace in the tmux status bar, parsed from kubeconfig without kubectl |
 | [`tmux-launcher-revamped`](https://github.com/tmux-revamped/tmux-launcher-revamped) | Launch any TUI app in a popup or a window, scoped to the current pane's directory, with one configurable bindi |
 | [`tmux-logging-revamped`](https://github.com/tmux-revamped/tmux-logging-revamped) | Capture any pane to a file: live logging, full scrollback, or a one-shot screenshot |
 | [`tmux-music-revamped`](https://github.com/tmux-revamped/tmux-music-revamped) | Now playing in your tmux status bar, without ever blocking the status render |
 | [`tmux-network-revamped`](https://github.com/tmux-revamped/tmux-network-revamped) | Network throughput in your tmux status bar, without ever blocking the render |
 | [`tmux-pain-control-revamped`](https://github.com/tmux-revamped/tmux-pain-control-revamped) | Standard pane and window management bindings for tmux, version aware, vim friendly, and fully configurable |
-| [`tmux-persist-revamped`](https://github.com/tmux-revamped/tmux-persist-revamped) | Save, auto-save, and restore your whole tmux environment, one plugin, no status-line tricks |
-| [`tmux-plugin-template`](https://github.com/tmux-revamped/tmux-plugin-template) | A template for building non-blocking tmux status plugins |
-| [`tmux-pomodoro-revamped`](https://github.com/tmux-revamped/tmux-pomodoro-revamped) | A Pomodoro timer in your tmux status bar, with zero temp files: all state lives in tmux options |
-| [`tmux-ram-revamped`](https://github.com/tmux-revamped/tmux-ram-revamped) | RAM usage for your tmux status bar, without ever blocking the status render |
-| [`tmux-reorder-revamped`](https://github.com/tmux-revamped/tmux-reorder-revamped) | Drag a window tab on the status bar with the mouse to move that window |
-| [`tmux-scroll-revamped`](https://github.com/tmux-revamped/tmux-scroll-revamped) | Mouse wheel that does the right thing: scroll the app directly, copy-mode everywhere else. No app names to con |
-| [`tmux-sensible-revamped`](https://github.com/tmux-revamped/tmux-sensible-revamped) | Sensible tmux defaults that normalize behavior across every tmux version, OS, and terminal, without clobbering |
-| [`tmux-tiling-revamped`](https://github.com/tmux-revamped/tmux-tiling-revamped) | BSP tiling window management for tmux. Eight layouts, nineteen operations, zero dependencies |
-| [`tmux-time-revamped`](https://github.com/tmux-revamped/tmux-time-revamped) | Local clock and world clocks in your tmux status bar, without ever blocking the render |
-| [`tmux-weather-revamped`](https://github.com/tmux-revamped/tmux-weather-revamped) | **this plugin**, Weather in your tmux status bar, fetched in the background so the render never waits on the network |
+| [`tmux-persist-revamped`](https://github.com/tmux-revamped/tmux-persist-revamped) | Save every tmux session, window and pane, auto-save on a timer, and restore it all after a reboot |
+| [`tmux-plugin-template`](https://github.com/tmux-revamped/tmux-plugin-template) | The starting point for a tmux-revamped plugin: shared library, bats harness, CI and family tooling |
+| [`tmux-pomodoro-revamped`](https://github.com/tmux-revamped/tmux-pomodoro-revamped) | A Pomodoro timer in the tmux status bar that keeps all of its state in tmux options, with no temp files |
+| [`tmux-ram-revamped`](https://github.com/tmux-revamped/tmux-ram-revamped) | RAM, swap and memory pressure in the tmux status bar, sampled in the background so the render never waits |
+| [`tmux-reorder-revamped`](https://github.com/tmux-revamped/tmux-reorder-revamped) | Drag a window tab along the tmux status bar with the mouse to move that window |
+| [`tmux-scroll-revamped`](https://github.com/tmux-revamped/tmux-scroll-revamped) | Send the mouse wheel to apps that scroll themselves and into tmux copy-mode everywhere else |
+| [`tmux-sensible-revamped`](https://github.com/tmux-revamped/tmux-sensible-revamped) | Sensible tmux defaults, gated by tmux version and terminal, that leave the options you set alone |
+| [`tmux-tiling-revamped`](https://github.com/tmux-revamped/tmux-tiling-revamped) | Tiling window management for tmux: eight layouts including BSP dwindle and spiral, with layout undo |
+| [`tmux-time-revamped`](https://github.com/tmux-revamped/tmux-time-revamped) | Local and world clocks for the tmux status bar, colored by time of day, with countdowns and a DST warning |
+| [`tmux-weather-revamped`](https://github.com/tmux-revamped/tmux-weather-revamped) | **this plugin**, Weather for the tmux status bar from wttr.in, fetched in the background so the status line never waits |
 
 ### Checking an installation
 

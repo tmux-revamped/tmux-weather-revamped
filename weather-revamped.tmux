@@ -63,6 +63,8 @@ update_option "status-right"
 
 if [ "${render_mode}" = "options" ]; then
   "${WEATHER_CMD}" start 2>/dev/null || true
+else
+  tmux set-option -gqu "@weather_revamped_ticker_pid"
 fi
 
 HASH="#"

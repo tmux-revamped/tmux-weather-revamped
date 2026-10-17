@@ -150,3 +150,15 @@ record_bind_keys() {
   # Assert
   [[ "$(cat "${BIND_LOG}")" != *" refresh"* ]]
 }
+
+@test "entry - jobs mode releases a running ticker so the daemon exits" {
+  # Arrange
+  tmux set-option -gq "@weather_revamped_ticker_pid" "4242"
+  tmux set-option -gq "status-right" "[#{weather_temp}]"
+
+  # Act
+  bash "${ENTRY}"
+
+  # Assert
+  [ ! -f "$(_mock_opt_file @weather_revamped_ticker_pid)" ]
+}

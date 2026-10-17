@@ -256,8 +256,9 @@ weather_doctor() {
 
 weather_publish() {
   local token
+  weather_tick
   for token in $(get_tmux_option "@weather_revamped_published" ""); do
-    publish_add "@weather_revamped_out_${token}" "$(main "${token}")"
+    publish_add "@weather_revamped_out_${token}" "$(weather_render "${token}")"
   done
   publish_commit
 }
@@ -289,8 +290,11 @@ main() {
   esac
 
   weather_tick
+  weather_render "${cmd}" "${arg}"
+}
 
-  local loc slug units json oneline
+weather_render() {
+  local cmd="${1:-}" arg="${2:-}" loc slug units json oneline
   loc="${arg:-$(weather_primary_location)}"
   slug=$(_weather_loc_slug "${loc}")
   units=$(_weather_units)

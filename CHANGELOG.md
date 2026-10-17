@@ -44,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `#` in the wttr.in condition text or in an alert line reached the status
   line as a tmux format, so `#(...)` in a response ran a command. Every `#` in
   that text is now doubled and renders as itself.
+- In options mode each published placeholder ran its own staleness check in
+  a subshell, so a stale reading started one fetch per placeholder. The tick
+  now checks once and renders every placeholder from the same cache.
 
 ## [1.3.0] - 2026-06-30
 

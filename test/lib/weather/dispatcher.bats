@@ -496,3 +496,18 @@ teardown() {
   # Assert
   [[ "${output}" == 'Flood ##{host} ##(id)' ]]
 }
+
+@test "weather.sh dispatcher - publishing several metrics ticks once" {
+  # Arrange
+  local ticks="${TEST_TMPDIR}/ticks"
+  weather_tick() { printf 'tick\n' >> "${ticks}"; }
+  _publish_tmux() { return 0; }
+  cache_set value_auto "${FIXTURE}"
+  set_tmux_option "@weather_revamped_published" "temp humidity weather"
+
+  # Act
+  weather_publish
+
+  # Assert
+  [[ "$(wc -l < "${ticks}" | tr -d ' ')" == "1" ]]
+}

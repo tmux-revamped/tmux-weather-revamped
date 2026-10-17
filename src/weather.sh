@@ -219,8 +219,9 @@ _tmux() {
 # weather_popup [LOCATION] -> open the detail card in a tmux popup (3.2+),
 # rendered by re-invoking this script so the popup reads the same cache.
 weather_popup() {
-  local loc="${1:-$(weather_primary_location)}"
-  _tmux display-popup -E "${WEATHER_CMD} popup_card ${loc}"
+  local loc="${1:-$(weather_primary_location)}" command
+  command=$(printf '%q popup_card %q' "${WEATHER_CMD}" "${loc}")
+  _tmux display-popup -E "$(publish_escape "${command}")"
 }
 
 # weather_doctor -> a capability report: tooling, configuration, and which fields

@@ -511,3 +511,14 @@ teardown() {
   # Assert
   [[ "$(wc -l < "${ticks}" | tr -d ' ')" == "1" ]]
 }
+
+@test "weather.sh dispatcher - popup quotes a multi-word location" {
+  # Arrange
+  _tmux() { printf '%s' "${3}"; }
+
+  # Act
+  run weather_popup "New York; echo #x"
+
+  # Assert
+  [[ "${output}" == *" popup_card New\\ York\\;\\ echo\\ ##x" ]]
+}

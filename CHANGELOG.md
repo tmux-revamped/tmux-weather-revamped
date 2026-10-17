@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In options mode each published placeholder ran its own staleness check in
   a subshell, so a stale reading started one fetch per placeholder. The tick
   now checks once and renders every placeholder from the same cache.
+- The detail popup put the location into its shell command unquoted, so a
+  multi-word location such as `New York` opened the card for `New`, and shell
+  metacharacters in a location ran. The command is now quoted.
 
 ## [1.3.0] - 2026-06-30
 

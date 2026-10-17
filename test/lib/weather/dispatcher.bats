@@ -405,13 +405,17 @@ teardown() {
 }
 
 @test "weather.sh dispatcher - publish writes every published token in one batch" {
+  # Arrange
   export PUBLISH_LOG="${TEST_TMPDIR}/publish.log"
   _publish_tmux() { [[ "${1}" == "list-clients" ]] && return 0; printf '%s\n' "$@" > "${PUBLISH_LOG}"; }
-  main() { printf 'v-%s' "${1}"; }
+  weather_tick() { return 0; }
+  weather_render() { printf 'v-%s' "${1}"; }
   set_tmux_option "@weather_revamped_published" "temp humidity"
 
+  # Act
   weather_publish
 
+  # Assert
   [[ "$(paste -sd'|' "${PUBLISH_LOG}")" == "set-option|-gq|@weather_revamped_out_temp|v-temp|;|set-option|-gq|@weather_revamped_out_humidity|v-humidity" ]]
 }
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-17
+
 ### Added
 
 - `@weather_revamped_umbrella_text` accepts a `{chance}` token, replaced by
@@ -19,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** the detail popup is now bound to `prefix + M-w` by default, the
+  key the family allocation gives this plugin, where it used to stay unbound
+  until `@tmux-weather-popup-key` was set. Set the option to `off` to keep it
+  unbound. The refresh key stays opt-in behind `@tmux-weather-refresh-key`.
 - The options-mode background process reads every option it needs in one tmux
   call per tick, sends its cache writes and published values in a second, and
   keeps its functions out of the environment of the commands it runs. Options

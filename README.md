@@ -4,7 +4,7 @@
 
 **Weather in your tmux status bar, fetched in the background so the render never waits on the network.**
 
-[![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](CHANGELOG.md)
+[![Tests](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-weather-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 
 </div>
 
@@ -93,7 +93,7 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 | `@tmux-weather-locations` | empty | a `;`-separated list of locations; each gets its own background worker and cache |
 | `@tmux-weather-alerts` | `off` | set to `on` to fetch the second severe-weather endpoint |
 | `@tmux-weather-alert-url` | empty | the alert endpoint, with `{loc}` replaced by the location |
-| `@tmux-weather-popup-key` | empty | a key to bind the detail popup (tmux 3.2+) |
+| `@tmux-weather-popup-key` | `M-w` | the key bound to the detail popup (tmux 3.2+); set `off` to bind nothing |
 | `@tmux-weather-refresh-key` | empty | a key to bind an immediate force-refresh |
 | `@weather_revamped_umbrella_text` | empty | the `#{weather_umbrella}` hint text; `{chance}` becomes the rain chance |
 | `@weather_revamped_umbrella_threshold` | `50` | rain chance percent at which the umbrella hint fires |
@@ -226,16 +226,16 @@ when it matters.
 
 ## Detail popup and refresh keys
 
-Bind a key to open a full card built from the cached reading, no re-probing, and
-another to force an immediate refresh. Both are unset by default so nothing
-clashes with your own bindings:
+`prefix + M-w` opens a full card built from the cached reading, no re-probing.
+A second key forcing an immediate refresh is opt-in and unset by default. Either
+key can be moved, and the popup key set to `off` binds nothing:
 
 ```tmux
 set -g @tmux-weather-popup-key 'W'
 set -g @tmux-weather-refresh-key 'R'
 ```
 
-`prefix + W` then shows condition, feels-like, wind, humidity, pressure, UV, dew
+The popup shows condition, feels-like, wind, humidity, pressure, UV, dew
 point, precipitation, sun and moon times, and today and tomorrow's range. The
 popup needs tmux 3.2 or newer.
 

@@ -75,13 +75,15 @@ if [ "${render_mode}" = "options" ]; then
   "${WEATHER_CMD}" start 2>/dev/null || true
 fi
 
-# Opt-in key bindings. Unset by default so nothing clashes with user keys.
+# The popup key defaults to the one the family allocation gives this plugin; the
+# refresh key is opt-in.
 HASH="#"
 QUOTED_CMD=$(printf '%q' "${WEATHER_CMD}")
 QUOTED_CMD="${QUOTED_CMD//"${HASH}"/${HASH}${HASH}}"
 
 POPUP_KEY=$(tmux show-option -gqv "@tmux-weather-popup-key")
-[ -n "${POPUP_KEY}" ] && tmux bind-key "${POPUP_KEY}" run-shell "${QUOTED_CMD} popup"
+[ -z "${POPUP_KEY}" ] && POPUP_KEY="M-w"
+[ "${POPUP_KEY}" != "off" ] && tmux bind-key "${POPUP_KEY}" run-shell "${QUOTED_CMD} popup"
 
 REFRESH_KEY=$(tmux show-option -gqv "@tmux-weather-refresh-key")
 [ -n "${REFRESH_KEY}" ] && tmux bind-key "${REFRESH_KEY}" run-shell "${QUOTED_CMD} refresh"

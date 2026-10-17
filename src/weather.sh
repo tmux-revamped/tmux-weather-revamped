@@ -128,7 +128,7 @@ _read_alert() {
 # or when URL is empty.
 weather_alert_fetch() {
   [[ -z "${1}" ]] && return 0
-  _read_alert "${1}" | awk 'NF { print; exit }'
+  publish_escape "$(_read_alert "${1}" | awk 'NF { print; exit }')"
 }
 
 # weather_render_alert TEXT -> a badge for a non-empty alert, prefixed by the
@@ -298,7 +298,7 @@ main() {
   oneline=$(wttr_oneline "${json}" "${units}")
 
   case "${cmd}" in
-    weather)        printf '%s' "${oneline}" ;;
+    weather)        publish_escape "${oneline}" ;;
     temp)           publish_pad "$(weather_render_temp "${oneline}")" "$(publish_width weather_revamped temp 5)" ;;
     color)          weather_render_color "${oneline}" ;;
     icon)           weather_render_icon "${oneline}" ;;

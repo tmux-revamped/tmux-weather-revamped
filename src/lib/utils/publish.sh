@@ -38,6 +38,11 @@ publish_width() {
   fi
 }
 
+publish_escape() {
+  local hash="#"
+  printf '%s' "${1//"${hash}"/${hash}${hash}}"
+}
+
 publish_add_raw() {
   local option="${1}" value="${2}" pane="${3:-}"
   if [[ "${value}" == *";" ]]; then

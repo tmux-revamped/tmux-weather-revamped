@@ -41,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The compacted cache kept only the first field on each line, so an hourly
   entry written on one line lost its dew point and rain chance. Every field on
   a line is now kept.
+- A `#` in the wttr.in condition text or in an alert line reached the status
+  line as a tmux format, so `#(...)` in a response ran a command. Every `#` in
+  that text is now doubled and renders as itself.
 
 ## [1.3.0] - 2026-06-30
 

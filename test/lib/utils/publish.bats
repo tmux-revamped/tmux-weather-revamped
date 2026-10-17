@@ -177,3 +177,14 @@ logged_words() {
 
   [[ "$(logged_words)" == "set-option|-gq|@a|100%" ]]
 }
+
+@test "publish - escape doubles every hash" {
+  # Arrange
+  local value='a#{b}#(c)'
+
+  # Act
+  run publish_escape "${value}"
+
+  # Assert
+  [[ "${output}" == 'a##{b}##(c)' ]]
+}

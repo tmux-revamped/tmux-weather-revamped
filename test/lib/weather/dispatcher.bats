@@ -473,3 +473,26 @@ teardown() {
 
   [[ -z "${output}" ]]
 }
+
+@test "weather.sh dispatcher - a hash in the condition text is doubled" {
+  # Arrange
+  cache_set value_auto '"temp_C":"7"
+"value":"Rain #(id)"'
+
+  # Act
+  run main weather
+
+  # Assert
+  [[ "${output}" == "Rain ##(id) +7${DEG}C" ]]
+}
+
+@test "weather.sh dispatcher - a hash in the alert text is doubled" {
+  # Arrange
+  _read_alert() { printf 'Flood #{host} #(id)\n'; }
+
+  # Act
+  run weather_alert_fetch "http://x"
+
+  # Assert
+  [[ "${output}" == 'Flood ##{host} ##(id)' ]]
+}

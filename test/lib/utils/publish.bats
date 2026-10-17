@@ -7,6 +7,7 @@ PUBLISH_LIB="${BATS_TEST_DIRNAME}/../../../src/lib/utils/publish.sh"
 setup() {
   setup_test_environment
   unset _TMUX_PLUGIN_PUBLISH_LOADED
+  # shellcheck source=/dev/null
   source "${PUBLISH_LIB}"
   PUBLISH_LOG="${TEST_TMPDIR}/publish.log"
   export PUBLISH_LOG
@@ -139,6 +140,7 @@ logged_words() {
 @test "publish - the tmux seam calls tmux" {
   unset -f _publish_tmux
   unset _TMUX_PLUGIN_PUBLISH_LOADED
+  # shellcheck source=/dev/null
   source "${PUBLISH_LIB}"
 
   run _publish_tmux show-option -gqv "@missing"

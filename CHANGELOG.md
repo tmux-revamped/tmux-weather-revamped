@@ -50,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The detail popup put the location into its shell command unquoted, so a
   multi-word location such as `New York` opened the card for `New`, and shell
   metacharacters in a location ran. The command is now quoted.
+- The README documented `@tmux-weather-format`, which nothing reads since the
+  fetch moved to the wttr.in JSON reading. The option is no longer listed.
 
 ## [1.3.0] - 2026-06-30
 

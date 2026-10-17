@@ -86,7 +86,6 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 |--------|---------|---------|
 | `@tmux-weather-location` | empty | a city or location; empty auto-detects by IP |
 | `@tmux-weather-units` | `m` | Celsius or Fahrenheit; accepts `m`/`c`/`celsius` and `u`/`f`/`fahrenheit` |
-| `@tmux-weather-format` | `%C+%t` | a wttr.in one-line format code; the default carries the condition and temperature |
 | `@tmux-weather-interval` | `15` | minutes between background fetches |
 | `@tmux-weather-hide-units` | `off` | set to `on` to drop the `C`/`F` unit letter from `#{weather_temp}`, keeping just the number and degree mark |
 | `@weather_revamped_show_condition_icon` | `on` | set to `off` to hide the sky glyph from `#{weather_condition_icon}` |
@@ -100,9 +99,6 @@ Press `prefix + I` to install. `curl` must be on `PATH`.
 | `@weather_revamped_umbrella_threshold` | `50` | rain chance percent at which the umbrella hint fires |
 | `@weather_revamped_alert_prefix` | empty | text prepended to `#{weather_alert}` |
 | `@weather_revamped_stale_color` | `#[dim]` | the style `#{weather_stale_color}` emits when stale |
-
-See the [wttr.in format options](https://github.com/chubin/wttr.in#one-line-output)
-for format codes.
 
 ### Temperature bands
 
@@ -133,9 +129,8 @@ When the temperature cannot be parsed, both placeholders render empty.
 ### Sky conditions
 
 `#{weather_condition_icon}` reads the wttr.in condition text and maps it to a
-Nerd Font weather glyph. For this to work the fetch format must include the
-condition, which the default `@tmux-weather-format` of `%C+%t` already does.
-Conditions are normalized into six keys, each with a Nerd Font default that you
+Nerd Font weather glyph. The condition comes from the same cached reading as
+the temperature. Conditions are normalized into six keys, each with a Nerd Font default that you
 can override:
 
 | Key | Matches conditions containing | Icon option |

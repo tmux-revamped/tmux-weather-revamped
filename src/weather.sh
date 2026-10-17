@@ -146,10 +146,10 @@ weather_refresh_loc() {
   slug=$(_weather_loc_slug "${loc}")
   key="value_${slug}"
   prev=$(wttr_pressure "$(cache_get "${key}")")
-  [[ -n "${prev}" ]] && set_tmux_option "$(_weather_prev_pressure_opt "${slug}")" "${prev}"
   url=$(weather_build_url "${loc}" "$(_weather_units)" "j1")
   value=$(wttr_compact "$(weather_fetch "${url}")")
   if [[ -n "${value}" ]]; then
+    [[ -n "${prev}" ]] && set_tmux_option "$(_weather_prev_pressure_opt "${slug}")" "${prev}"
     cache_set "${key}" "${value}"
     set_tmux_option "$(_weather_ok_ts_opt "${slug}")" "$(_cache_now)"
   else

@@ -52,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   metacharacters in a location ran. The command is now quoted.
 - The README documented `@tmux-weather-format`, which nothing reads since the
   fetch moved to the wttr.in JSON reading. The option is no longer listed.
+- A failed fetch overwrote the stored prior pressure with the current one, so
+  `#{weather_pressure_trend}` showed steady after every outage. The prior
+  pressure now moves only when a fetch succeeds.
 
 ## [1.3.0] - 2026-06-30
 

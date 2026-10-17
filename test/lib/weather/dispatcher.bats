@@ -522,3 +522,16 @@ teardown() {
   # Assert
   [[ "${output}" == *" popup_card New\\ York\\;\\ echo\\ ##x" ]]
 }
+
+@test "weather.sh dispatcher - a failed fetch keeps the prior pressure" {
+  # Arrange
+  cache_set value_auto "${FIXTURE}"
+  set_tmux_option "$(_weather_prev_pressure_opt auto)" "1009"
+  weather_fetch() { printf ''; }
+
+  # Act
+  weather_refresh_loc "auto"
+
+  # Assert
+  [[ "$(get_tmux_option "$(_weather_prev_pressure_opt auto)")" == "1009" ]]
+}

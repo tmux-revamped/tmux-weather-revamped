@@ -65,3 +65,17 @@ teardown() {
 
   [[ "$(cat "$(_mock_opt_file @weather_revamped_published)")" == "temp" ]]
 }
+
+@test "entry - an ampersand in the plugin path survives the replacement" {
+  # Arrange
+  local copy="${TEST_TMPDIR}/a&b"
+  mkdir -p "${copy}"
+  cp -R "${BATS_TEST_DIRNAME}/../../src" "${BATS_TEST_DIRNAME}/../../weather-revamped.tmux" "${copy}/"
+  tmux set-option -gq "status-right" "[#{weather_temp}]"
+
+  # Act
+  bash "${copy}/weather-revamped.tmux"
+
+  # Assert
+  [[ "$(cat "$(_mock_opt_file status-right)")" == "[#(${copy}/src/weather.sh temp)]" ]]
+}

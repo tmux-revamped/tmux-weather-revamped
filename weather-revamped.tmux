@@ -37,10 +37,11 @@ target_for() {
 }
 
 interpolate() {
-  local value="${1}" token placeholder
+  local value="${1}" token placeholder target
   for token in ${WEATHER_TOKENS}; do
     placeholder="$(placeholder_for "${token}")"
-    value="${value//${placeholder}/$(target_for "${token}")}"
+    target="$(target_for "${token}")"
+    value=${value//"${placeholder}"/"${target}"}
   done
   echo "${value}"
 }

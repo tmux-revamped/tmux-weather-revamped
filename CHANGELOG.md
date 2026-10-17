@@ -55,6 +55,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A failed fetch overwrote the stored prior pressure with the current one, so
   `#{weather_pressure_trend}` showed steady after every outage. The prior
   pressure now moves only when a fetch succeeds.
+- On bash 5.2 and later, an `&` in the plugin path was replaced by the
+  placeholder text when the entry point rewrote the status line, so the
+  dispatcher path was wrong. The replacement is now quoted.
 
 ## [1.3.0] - 2026-06-30
 

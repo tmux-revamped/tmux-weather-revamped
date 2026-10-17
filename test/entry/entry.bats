@@ -79,3 +79,27 @@ teardown() {
   # Assert
   [[ "$(cat "$(_mock_opt_file status-right)")" == "[#(${copy}/src/weather.sh temp)]" ]]
 }
+
+@test "entry - the popup key quotes a plugin path with a space" {
+  # Arrange
+  local copy="${TEST_TMPDIR}/my plugins"
+  mkdir -p "${copy}"
+  cp -R "${BATS_TEST_DIRNAME}/../../src" "${BATS_TEST_DIRNAME}/../../weather-revamped.tmux" "${copy}/"
+  export BIND_LOG="${TEST_TMPDIR}/bind.log"
+  eval "$(declare -f tmux | sed '1s/^tmux/_mock_tmux/')"
+  tmux() {
+    if [ "${1}" = "bind-key" ]; then
+      printf '%s\n' "${4}" >> "${BIND_LOG}"
+      return 0
+    fi
+    _mock_tmux "$@"
+  }
+  export -f _mock_tmux tmux
+  tmux set-option -gq "@tmux-weather-popup-key" "W"
+
+  # Act
+  bash "${copy}/weather-revamped.tmux"
+
+  # Assert
+  [[ "$(cat "${BIND_LOG}")" == "${TEST_TMPDIR}/my\\ plugins/src/weather.sh popup" ]]
+}

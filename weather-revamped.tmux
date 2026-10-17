@@ -76,10 +76,14 @@ if [ "${render_mode}" = "options" ]; then
 fi
 
 # Opt-in key bindings. Unset by default so nothing clashes with user keys.
+HASH="#"
+QUOTED_CMD=$(printf '%q' "${WEATHER_CMD}")
+QUOTED_CMD="${QUOTED_CMD//"${HASH}"/${HASH}${HASH}}"
+
 POPUP_KEY=$(tmux show-option -gqv "@tmux-weather-popup-key")
-[ -n "${POPUP_KEY}" ] && tmux bind-key "${POPUP_KEY}" run-shell "${WEATHER_CMD} popup"
+[ -n "${POPUP_KEY}" ] && tmux bind-key "${POPUP_KEY}" run-shell "${QUOTED_CMD} popup"
 
 REFRESH_KEY=$(tmux show-option -gqv "@tmux-weather-refresh-key")
-[ -n "${REFRESH_KEY}" ] && tmux bind-key "${REFRESH_KEY}" run-shell "${WEATHER_CMD} refresh"
+[ -n "${REFRESH_KEY}" ] && tmux bind-key "${REFRESH_KEY}" run-shell "${QUOTED_CMD} refresh"
 
 true

@@ -58,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On bash 5.2 and later, an `&` in the plugin path was replaced by the
   placeholder text when the entry point rewrote the status line, so the
   dispatcher path was wrong. The replacement is now quoted.
+- The popup and refresh keys ran the plugin path unquoted, so a plugin
+  directory containing a space or `'` broke both keys. The path is now quoted.
 
 ## [1.3.0] - 2026-06-30
 

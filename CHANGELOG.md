@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-27
+
 ### Fixed
 
+- On bash 5.2 and later, a location holding `&` or a backslash produced a wrong
+  alert URL, because an unquoted `&` in a replacement stands for the matched
+  text. The location is now inserted verbatim.
 - The README documented `@weather_revamped_enable_logging`, which nothing
   reads, because the weather script never loads the error logger. The option
   is no longer listed.

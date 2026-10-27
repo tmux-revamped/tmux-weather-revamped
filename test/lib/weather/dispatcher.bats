@@ -295,6 +295,17 @@ teardown() {
   [[ "$(weather_alert_build_url "New York")" == "https://alerts.example/New+York" ]]
 }
 
+@test "weather.sh dispatcher - weather_alert_build_url keeps an ampersand and a backslash in the location" {
+  # Arrange
+  set_tmux_option "@tmux-weather-alert-url" "https://alerts.example/{loc}"
+
+  # Act
+  run weather_alert_build_url 'R&D Lab\1'
+
+  # Assert
+  [ "${output}" = 'https://alerts.example/R&D+Lab\1' ]
+}
+
 @test "weather.sh dispatcher - weather_alert_fetch is empty for an empty url" {
   [[ -z "$(weather_alert_fetch "")" ]]
 }

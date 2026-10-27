@@ -84,7 +84,8 @@ weather_alert_build_url() {
   url=$(get_tmux_option "@tmux-weather-alert-url" "")
   [[ -z "${url}" ]] && return 0
   loc="${1// /+}"
-  printf '%s' "${url//\{loc\}/${loc}}"
+  url=${url//"{loc}"/"${loc}"}
+  printf '%s' "${url}"
 }
 
 _read_alert() {

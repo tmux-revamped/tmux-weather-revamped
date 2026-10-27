@@ -209,7 +209,8 @@ weather_umbrella_hint() {
   [[ "${threshold}" =~ ^[0-9]+$ ]] || threshold=50
   (( chance >= threshold )) || return 0
   text=$(get_tmux_option "@weather_revamped_umbrella_text" "")
-  printf '%s\n' "${text//\{chance\}/${chance}}"
+  text=${text//"{chance}"/"${chance}"}
+  printf '%s\n' "${text}"
   return 0
 }
 

@@ -57,7 +57,6 @@ As of 2026-11-15:
 - No golden transcripts, `call.sh`, `run-matrix.sh` or `linux-container.sh`.
 - The version is written by hand and released by `tests.yml`; there is no semantic-release, `package.json`, `release.yml` with `recover`, `bot-merge.yml` or Renovate.
 - CI is `tests.yml`, `family.yml` and `security.yml`, not `ci.yml`, and no job starts with `step-security/harden-runner`.
-- The pull request template, `labeler.yml`, `pr.yml` and `stale.yml` are still present.
 - No `.editorconfig`, `.yamllint.yml`, `scripts/check-names.sh` or shfmt; the Makefile has `help`, `test`, `test-unit`, `coverage`, `lint` and `clean`, not the family's targets.
 - Its settings are named `@tmux-weather-*`, such as `@tmux-weather-location`, outside the `@weather_revamped_*` pattern.
 - No `@weather_revamped_notify` for a severe-weather alert yet.

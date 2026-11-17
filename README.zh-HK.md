@@ -292,7 +292,7 @@ set -g @weather_revamped_very_hot_color '#[fg=#dc322f]'
 
 | 按鍵 | 選項 | 動作 |
 |:----|:-------|:-------|
-| `prefix + M-w` | `@tmux-weather-popup-key` | 開啟根據第一個地點的保存資料製作的卡片 |
+| `prefix + M-w` | `@tmux-weather-popup-key` | 開啟根據第一個地點的保存資料製作的卡片；按 Enter 關閉 |
 | 不綁定 | `@tmux-weather-refresh-key` | 即時取得第一個地點 |
 
 卡片顯示天氣狀況、溫度和體感溫度、風、濕度、氣壓、紫外線、露點及其舒適度、降雨量和降雨概率、日出、日落、月相，以及今天和明天的溫度範圍。它只讀取保存的副本，不會發出請求。

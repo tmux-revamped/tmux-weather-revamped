@@ -181,7 +181,7 @@ _weather_hash_free() {
 
 weather_popup() {
   local loc="${1:-$(weather_primary_location)}"
-  _tmux display-popup -E "$(_weather_hash_free "${WEATHER_CMD}") popup_card $(_weather_hash_free "${loc}")"
+  _tmux display-popup -E "$(_weather_hash_free "${WEATHER_CMD}") popup_card $(_weather_hash_free "${loc}"); read -r weather_revamped_wait"
 }
 
 weather_doctor() {

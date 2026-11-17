@@ -292,7 +292,7 @@ The plugin manages these options itself. Do not set them.
 
 | Key | Option | Action |
 |:----|:-------|:-------|
-| `prefix + M-w` | `@tmux-weather-popup-key` | open a card built from the stored reading for the first location |
+| `prefix + M-w` | `@tmux-weather-popup-key` | open a card built from the stored reading for the first location; Enter closes it |
 | unbound | `@tmux-weather-refresh-key` | fetch the first location now |
 
 The card shows the condition, temperature and feels-like, wind, humidity, pressure, UV, dew point with its comfort word, precipitation and rain chance, sunrise, sunset, the moon phase, and today's and tomorrow's ranges. It reads the stored copy and makes no request.

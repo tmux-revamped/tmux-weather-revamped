@@ -292,7 +292,7 @@ set -g @weather_revamped_very_hot_color '#[fg=#dc322f]'
 
 | 按键 | 选项 | 动作 |
 |:----|:-------|:-------|
-| `prefix + M-w` | `@tmux-weather-popup-key` | 打开根据第一个地点的保存数据生成的卡片 |
+| `prefix + M-w` | `@tmux-weather-popup-key` | 打开根据第一个地点的保存数据生成的卡片；按 Enter 关闭 |
 | 不绑定 | `@tmux-weather-refresh-key` | 立即获取第一个地点 |
 
 卡片显示天气状况、温度和体感温度、风、湿度、气压、紫外线、露点及其舒适度、降水量和降雨概率、日出、日落、月相，以及今天和明天的温度范围。它只读取保存的副本，不发出请求。

@@ -44,6 +44,7 @@ fetched() {
 }
 
 setup() {
+  unset BASH_ENV
   ROOT="$(cd "${BATS_TEST_DIRNAME}/../.." && pwd)"
   STUBS="${BATS_TEST_TMPDIR}/stubs"
   export HOME="${BATS_TEST_TMPDIR}/home"

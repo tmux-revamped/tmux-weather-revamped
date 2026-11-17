@@ -5,7 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.2] - 2026-11-16
+
+### Fixed
+
+- A popup opened from a checkout path holding a `#`, or for a place
+  holding one, ran the wrong command, because the popup command doubled the
+  `#` and tmux 3.6 and later expand no format there. The command now writes each `#` through `printf '%b'`, so
+  it reads the same on every tmux version.
 
 ## [2.0.1] - 2026-10-27
 

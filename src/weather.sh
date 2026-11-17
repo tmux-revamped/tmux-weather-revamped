@@ -168,10 +168,20 @@ _tmux() {
   tmux "$@"
 }
 
+_weather_hash_free() {
+  local rest="${1}" out="" piece hash="#"
+  while [[ "${rest}" == *"${hash}"* ]]; do
+    printf -v piece '%q' "${rest%%"${hash}"*}"
+    out+="${piece}\"\$(printf '%b' '\\0043')\""
+    rest="${rest#*"${hash}"}"
+  done
+  printf -v piece '%q' "${rest}"
+  printf '%s%s' "${out}" "${piece}"
+}
+
 weather_popup() {
-  local loc="${1:-$(weather_primary_location)}" command
-  command=$(printf '%q popup_card %q' "${WEATHER_CMD}" "${loc}")
-  _tmux display-popup -E "$(publish_escape "${command}")"
+  local loc="${1:-$(weather_primary_location)}"
+  _tmux display-popup -E "$(_weather_hash_free "${WEATHER_CMD}") popup_card $(_weather_hash_free "${loc}")"
 }
 
 weather_doctor() {

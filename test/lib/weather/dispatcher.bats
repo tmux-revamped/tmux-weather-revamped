@@ -528,13 +528,18 @@ teardown() {
 
 @test "weather.sh dispatcher - popup quotes a multi-word location" {
   # Arrange
-  _tmux() { printf '%s' "${3}"; }
+  local command
+  _tmux() { printf '%s' "${3}" > "${TEST_TMPDIR}/popup"; }
 
   # Act
-  run weather_popup "New York; echo #x"
+  weather_popup "New York; echo #x"
 
   # Assert
-  [[ "${output}" == *" popup_card New\\ York\\;\\ echo\\ ##x" ]]
+  command=$(cat "${TEST_TMPDIR}/popup")
+  [[ "${command}" == *" popup_card New\\ York\\;\\ echo\\ "* ]] || false
+  [[ "${command}" != *"#"* ]] || false
+  run sh -c "printf '%s\n' ${command}"
+  [[ "${lines[2]}" == "New York; echo #x" ]]
 }
 
 @test "weather.sh dispatcher - a failed fetch keeps the prior pressure" {
@@ -548,4 +553,22 @@ teardown() {
 
   # Assert
   [[ "$(get_tmux_option "$(_weather_prev_pressure_opt auto)")" == "1009" ]]
+}
+
+@test "weather.sh dispatcher - the popup command carries no hash and still names a path and a place that hold one" {
+  # Arrange
+  local command
+  WEATHER_CMD="/p #1/it's/weather.sh"
+  _tmux() { printf '%s' "$3" > "${TEST_TMPDIR}/popup"; }
+
+  # Act
+  weather_popup "Town #2"
+
+  # Assert
+  command=$(cat "${TEST_TMPDIR}/popup")
+  [[ "${command}" != *"#"* ]] || false
+  run sh -c "printf '%s\n' ${command}"
+  [[ "${lines[0]}" == "/p #1/it's/weather.sh" ]] || false
+  [[ "${lines[1]}" == "popup_card" ]] || false
+  [[ "${lines[2]}" == "Town #2" ]]
 }

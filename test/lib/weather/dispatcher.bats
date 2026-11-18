@@ -291,19 +291,19 @@ teardown() {
 }
 
 @test "weather.sh dispatcher - weather_alert_build_url substitutes the location" {
-  set_tmux_option "@tmux-weather-alert-url" "https://alerts.example/{loc}"
-  [[ "$(weather_alert_build_url "New York")" == "https://alerts.example/New+York" ]]
+  set_tmux_option "@tmux-weather-alert-url" "http://127.0.0.1:8080/alerts/{loc}"
+  [[ "$(weather_alert_build_url "New York")" == "http://127.0.0.1:8080/alerts/New+York" ]]
 }
 
 @test "weather.sh dispatcher - weather_alert_build_url keeps an ampersand and a backslash in the location" {
   # Arrange
-  set_tmux_option "@tmux-weather-alert-url" "https://alerts.example/{loc}"
+  set_tmux_option "@tmux-weather-alert-url" "http://127.0.0.1:8080/alerts/{loc}"
 
   # Act
   run weather_alert_build_url 'R&D Lab\1'
 
   # Assert
-  [ "${output}" = 'https://alerts.example/R&D+Lab\1' ]
+  [ "${output}" = 'http://127.0.0.1:8080/alerts/R&D+Lab\1' ]
 }
 
 @test "weather.sh dispatcher - weather_alert_fetch is empty for an empty url" {
@@ -312,7 +312,7 @@ teardown() {
 
 @test "weather.sh dispatcher - weather_alert_fetch reads the first non-empty line" {
   _read_alert() { printf '\nTornado Warning\nmore\n'; }
-  [[ "$(weather_alert_fetch "http://x")" == "Tornado Warning" ]]
+  [[ "$(weather_alert_fetch "http://127.0.0.1:8080/alerts/London")" == "Tornado Warning" ]]
 }
 
 @test "weather.sh dispatcher - weather_render_alert is empty without an alert" {
@@ -326,7 +326,7 @@ teardown() {
 
 @test "weather.sh dispatcher - alert refresh and subcommand round-trip" {
   set_tmux_option "@tmux-weather-alerts" "on"
-  set_tmux_option "@tmux-weather-alert-url" "https://alerts.example/{loc}"
+  set_tmux_option "@tmux-weather-alert-url" "http://127.0.0.1:8080/alerts/{loc}"
   _read_alert() { printf 'Heat Advisory\n'; }
   export -f _read_alert
   cache_set value_auto "${FIXTURE}"
@@ -392,7 +392,7 @@ teardown() {
 
 @test "weather.sh dispatcher - _read_alert runs curl behind a stub" {
   curl() { printf 'Storm Warning\nrest\n'; }
-  [[ "$(_read_alert "http://example")" == *"Storm Warning"* ]]
+  [[ "$(_read_alert "http://127.0.0.1:8080/alerts/London")" == *"Storm Warning"* ]]
 }
 
 @test "weather.sh dispatcher - _tmux seam forwards to tmux" {
@@ -505,7 +505,7 @@ teardown() {
   _read_alert() { printf 'Flood #{host} #(id)\n'; }
 
   # Act
-  run weather_alert_fetch "http://x"
+  run weather_alert_fetch "http://127.0.0.1:8080/alerts/London"
 
   # Assert
   [[ "${output}" == 'Flood ##{host} ##(id)' ]]

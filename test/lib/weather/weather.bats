@@ -56,22 +56,22 @@ teardown() {
 
 @test "weather.sh - weather_fetch returns a successful body" {
   _read_weather() { echo "Partly cloudy 18°C"; }
-  [[ "$(weather_fetch "http://x")" == "Partly cloudy 18°C" ]]
+  [[ "$(weather_fetch "https://wttr.in/London?format=1")" == "Partly cloudy 18°C" ]]
 }
 
 @test "weather.sh - weather_fetch is empty for an unknown location" {
   _read_weather() { echo "Unknown location: zzz"; }
-  [[ -z "$(weather_fetch "http://x")" ]]
+  [[ -z "$(weather_fetch "https://wttr.in/London?format=1")" ]]
 }
 
 @test "weather.sh - weather_fetch is empty for a server error" {
   _read_weather() { echo "ERROR: upstream"; }
-  [[ -z "$(weather_fetch "http://x")" ]]
+  [[ -z "$(weather_fetch "https://wttr.in/London?format=1")" ]]
 }
 
 @test "weather.sh - weather_fetch is empty when the probe is empty" {
   _read_weather() { echo ""; }
-  [[ -z "$(weather_fetch "http://x")" ]]
+  [[ -z "$(weather_fetch "https://wttr.in/London?format=1")" ]]
 }
 
 @test "weather.sh - weather_temp_from_text reads a positive temperature" {
@@ -357,7 +357,7 @@ teardown() {
 
 @test "weather.sh - _read_weather runs curl behind a stub" {
   curl() { printf 'Sunny 20C'; }
-  [[ "$(_read_weather "http://example")" == "Sunny 20C" ]]
+  [[ "$(_read_weather "https://wttr.in/London?format=1")" == "Sunny 20C" ]]
 }
 
 @test "weather.sh - an empty tint turns the default off" {

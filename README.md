@@ -151,11 +151,11 @@ set -g status-right '#{weather_temp} #(~/.tmux/plugins/tmux-weather-revamped/src
 
 ### Severe-weather alerts
 
-Alerts are off by default and use a second endpoint you choose. `{loc}` in the URL becomes the location. The first non-empty line of the response becomes `#{weather_alert}`, after `@weather_revamped_alert_prefix`.
+Alerts are off by default and use a second endpoint you choose. `{loc}` in the URL becomes the location. The first non-empty line of the response becomes `#{weather_alert}`, after `@weather_revamped_alert_prefix`. wttr.in serves no alerts, so the endpoint is one you run or trust; the example points at one on your own machine.
 
 ```tmux
 set -g @tmux-weather-alerts 'on'
-set -g @tmux-weather-alert-url 'https://example.com/alerts/{loc}'
+set -g @tmux-weather-alert-url 'http://127.0.0.1:8080/alerts/{loc}'
 set -g @weather_revamped_alert_prefix '[!] '
 ```
 
@@ -318,6 +318,8 @@ A response containing `Unknown location`, `ERROR` or `Sorry` is discarded and th
 | `make test` | the bats suite |
 | `make lint` | shellcheck at warning level on every shell file |
 | `make coverage` | kcov line coverage with a 95 percent floor, Linux only |
+
+On macOS, `brew bundle` installs every tool these targets call, from the [`Brewfile`](Brewfile).
 
 ## License
 

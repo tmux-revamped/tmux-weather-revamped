@@ -151,11 +151,11 @@ set -g status-right '#{weather_temp} #(~/.tmux/plugins/tmux-weather-revamped/src
 
 ### 気象警報
 
-警報は既定で無効で、自分で選んだ2つ目のエンドポイントを使います。URLの`{loc}`は地点に置き換わります。応答の最初の空でない行が、`@weather_revamped_alert_prefix`に続いて`#{weather_alert}`になります。
+警報は既定で無効で、自分で選んだ2つ目のエンドポイントを使います。URLの`{loc}`は地点に置き換わります。応答の最初の空でない行が、`@weather_revamped_alert_prefix`に続いて`#{weather_alert}`になります。wttr.in は警報を返さないため、エンドポイントは自分で用意するか信頼できるものを指定します。下の例は自分のマシンで動かしているものを指しています。
 
 ```tmux
 set -g @tmux-weather-alerts 'on'
-set -g @tmux-weather-alert-url 'https://example.com/alerts/{loc}'
+set -g @tmux-weather-alert-url 'http://127.0.0.1:8080/alerts/{loc}'
 set -g @weather_revamped_alert_prefix '[!] '
 ```
 
@@ -318,6 +318,8 @@ graph LR
 | `make test` | batsのテストスイート |
 | `make lint` | すべてのシェルファイルに対するwarningレベルのshellcheck |
 | `make coverage` | 下限95パーセントのkcovによる行カバレッジ、Linuxのみ |
+
+macOS では、`brew bundle` を実行すると、これらのターゲットが使うツールがすべて [`Brewfile`](Brewfile) からインストールされます。
 
 ## ライセンス
 

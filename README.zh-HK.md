@@ -151,11 +151,11 @@ set -g status-right '#{weather_temp} #(~/.tmux/plugins/tmux-weather-revamped/src
 
 ### 惡劣天氣警告
 
-警告預設關閉，並使用你選擇的第二個端點。URL 中的 `{loc}` 會取代為地點。回應中第一個非空行會接在 `@weather_revamped_alert_prefix` 之後，成為 `#{weather_alert}`。
+警告預設關閉，並使用你選擇的第二個端點。URL 中的 `{loc}` 會取代為地點。回應中第一個非空行會接在 `@weather_revamped_alert_prefix` 之後，成為 `#{weather_alert}`。wttr.in 不提供警告，所以這個端點需要你自己執行或選擇可信的來源；以下例子指向你本機上的一個端點。
 
 ```tmux
 set -g @tmux-weather-alerts 'on'
-set -g @tmux-weather-alert-url 'https://example.com/alerts/{loc}'
+set -g @tmux-weather-alert-url 'http://127.0.0.1:8080/alerts/{loc}'
 set -g @weather_revamped_alert_prefix '[!] '
 ```
 
@@ -318,6 +318,8 @@ graph LR
 | `make test` | bats 測試套件 |
 | `make lint` | 對所有 shell 檔案執行 warning 級別的 shellcheck |
 | `make coverage` | kcov 行覆蓋率，下限 95%，只限 Linux |
+
+在 macOS 上，執行 `brew bundle` 會根據 [`Brewfile`](Brewfile) 安裝這些目標用到的所有工具。
 
 ## 授權
 

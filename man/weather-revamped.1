@@ -1,0 +1,308 @@
+.TH WEATHER-REVAMPED 1 "2026-11-18" "weather-revamped" "User Commands"
+.SH NAME
+weather-revamped \- weather from wttr.in in the tmux status bar
+.SH SYNOPSIS
+.B weather-revamped
+.RI [ options ]
+.I command
+.RI [ name ]
+.RI [ place ]
+.SH DESCRIPTION
+.B weather-revamped
+shows the weather wttr.in reports for one place in the tmux status line:
+the condition and the temperature, what it feels like, the wind, the
+humidity, the pressure and its trend, the precipitation and the rain
+chance, the UV index, the dew point, the sun, the moon, today and
+tomorrow, and an alert line from an address of your own.
+.PP
+The entry point
+.B weather-revamped.tmux
+runs
+.B apply
+once when tmux loads the plugin, which binds the popup key in one tmux call
+and replaces #{weather} and every #{weather_name} placeholder in status-left
+and status-right.
+.PP
+A status call prints the stored reading at once. When the reading is older
+than the fetch interval it starts one fetch in the background, so the status
+line never waits. An answer that says the location is unknown is dropped and
+the last reading stays. Run with no command on a terminal, the tool offers a
+menu.
+.SH COMMANDS
+.TP
+.B apply
+Bind the popup key, and the refresh key when one is set, and replace the status placeholders now. In the options render mode it also starts the daemon.
+.TP
+.B list
+Print every tmux command apply would send, one per line, and change nothing.
+.TP
+.B status
+Print one placeholder from the stored reading, for the first location or for the place given after the name: weather, temp, feels_like, wind, humidity, pressure, pressure_trend, precip, rain_chance, umbrella, uv, uv_color, dew_point, dew_comfort, moon, sunrise, sunset, forecast, today_high, today_low, tomorrow_high, tomorrow_low, condition_icon, condition_tint, color, icon, stale_color or alert. A reading older than the fetch interval starts one fetch in the background.
+.TP
+.B refresh
+Fetch the weather now, for the first location or for the place given, store the reading and say what wttr.in answered. It fails when wttr.in gives no reading.
+.TP
+.B card
+Print one row per part of the reading: the place, the weather now, the wind, the humidity, the pressure, the UV index, the dew point, the precipitation, the rain chance, the sun, the moon, today and tomorrow, and the alert when alerts are on. A stale reading is fetched first.
+.TP
+.B popup
+Open the card in a tmux popup that closes on Enter. The popup key runs it. It needs tmux 3.2 or later.
+.TP
+.B daemon
+Fetch every stale location and publish every placeholder the status line uses, once per tick, until another daemon takes over or the tmux server ends. apply starts it in the options render mode.
+.TP
+.B doctor
+Print one row per dependency: tmux, curl, the age of the stored reading, the notifier, the key it found bound, gum and the core tools. Exits 1 only when a required tool is missing.
+.TP
+.B version
+Print the version, then the tmux version.
+.TP
+.B help
+Print the help page.
+.SH OPTIONS
+.TP
+.B \-\-json
+.B list
+prints one JSON object.
+.TP
+.BI \-\-theme " name"
+Colours of the terminal interface:
+.BR kodougu ,
+.BR catppuccin\-mocha ,
+.BR catppuccin\-latte ,
+.BR dracula ,
+.BR nord ,
+.BR gruvbox ,
+.B tokyo\-night
+or
+.BR mono .
+The default is
+.BR kodougu .
+.TP
+.BI \-\- setting " value"
+Any tmux option below, named with dashes, such as
+.B \-\-units
+or
+.BR \-\-fetch\-minutes .
+It also takes the form
+.IR \-\-setting = value ,
+and outranks the environment and the tmux option. Given to
+.BR apply ,
+it rides on the popup key and on every status call.
+.SH ENVIRONMENT
+.TP
+.BI WEATHER_REVAMPED_ SETTING
+Any tmux option below in capitals, such as
+.BR WEATHER_REVAMPED_UNITS .
+It outranks the tmux option.
+.TP
+.B WEATHER_REVAMPED_THEME
+The theme when
+.B \-\-theme
+is not given.
+.TP
+.B WEATHER_REVAMPED_ACCENT
+A colour such as #CBA6F7 that replaces the accent of the theme.
+.TP
+.B KODOUGU_THEME
+The theme of every kodougu and tmux-revamped tool, when neither
+.B \-\-theme
+nor
+.B WEATHER_REVAMPED_THEME
+is set.
+.TP
+.B KODOUGU_ACCENT
+The accent of every kodougu and tmux-revamped tool, when
+.B WEATHER_REVAMPED_ACCENT
+is not set.
+.TP
+.B NO_COLOR
+Turns colour off in every theme.
+.SH TMUX OPTIONS
+An empty tmux option means its default. A key set to off binds nothing. An on
+or off option also reads 1, yes and true as on, and 0, no and false as off.
+An option that holds any other value takes its default, and doctor names it.
+.TP
+.B @weather_revamped_popup_key
+The prefix key that opens the forecast popup. off binds nothing. The default is M\-w, left alone when someone else holds it.
+.TP
+.B @weather_revamped_refresh_key
+A prefix key that fetches the weather at once, in the background. The default is none.
+.TP
+.B @weather_revamped_location
+The city or place to ask wttr.in about. Empty lets wttr.in locate the machine by its address. The default is none.
+.TP
+.B @weather_revamped_locations
+Several places separated by semicolons. The first one fills the placeholders, and it outranks the single location. The default is none.
+.TP
+.B @weather_revamped_units
+m for Celsius and km/h, u for Fahrenheit and mph; f, fahrenheit and imperial are read as u. The default is m.
+.TP
+.B @weather_revamped_fetch_minutes
+How many minutes a reading stays fresh before the next fetch, 1 or more. The default is 15.
+.TP
+.B @weather_revamped_hide_units
+on drops the C or F from #{weather_temp}. The default is off.
+.TP
+.B @weather_revamped_alerts
+on fetches the alert address after each reading. The default is off.
+.TP
+.B @weather_revamped_alert_url
+The address the alert line comes from, with {loc} replaced by the place. Its first line that is not empty is the alert. The default is none.
+.TP
+.B @weather_revamped_alert_prefix
+Text printed before #{weather_alert}. The default is none.
+.TP
+.B @weather_revamped_notify
+1 sends a desktop notification when a location gets a new alert. The default is 0.
+.TP
+.B @weather_revamped_umbrella_text
+What #{weather_umbrella} prints once the rain chance reaches the threshold, with {chance} replaced by the chance. The default is none.
+.TP
+.B @weather_revamped_umbrella_threshold
+The rain chance, in percent, from which the umbrella text shows. The default is 50.
+.TP
+.B @weather_revamped_stale_color
+The style #{weather_stale_color} prints once the last answer is older than three fetch intervals. The default is #[dim].
+.TP
+.B @weather_revamped_pressure_delta
+The change in hPa beyond which the pressure counts as rising or falling. The default is 1.
+.TP
+.B @weather_revamped_pressure_rising
+What #{weather_pressure_trend} prints when the pressure rose. The default is ^.
+.TP
+.B @weather_revamped_pressure_falling
+What #{weather_pressure_trend} prints when the pressure fell. The default is v.
+.TP
+.B @weather_revamped_pressure_steady
+What #{weather_pressure_trend} prints when the pressure held. The default is =.
+.TP
+.B @weather_revamped_uv_low_color
+The style #{weather_uv_color} prints for a UV index of 0 to 2. The default is #[fg=green].
+.TP
+.B @weather_revamped_uv_moderate_color
+The style #{weather_uv_color} prints for a UV index of 3 to 5. The default is #[fg=yellow].
+.TP
+.B @weather_revamped_uv_high_color
+The style #{weather_uv_color} prints for a UV index of 6 to 7. The default is #[fg=colour208].
+.TP
+.B @weather_revamped_uv_very_high_color
+The style #{weather_uv_color} prints for a UV index of 8 to 10. The default is #[fg=red].
+.TP
+.B @weather_revamped_uv_extreme_color
+The style #{weather_uv_color} prints for a UV index of 11 and up. The default is #[fg=magenta].
+.TP
+.B @weather_revamped_freezing_color
+The style #{weather_color} prints at below 0 degrees Celsius. The default is #[fg=blue].
+.TP
+.B @weather_revamped_cold_color
+The style #{weather_color} prints at 0 to 9 degrees Celsius. The default is #[fg=cyan].
+.TP
+.B @weather_revamped_cool_color
+The style #{weather_color} prints at 10 to 17 degrees Celsius. The default is #[fg=green].
+.TP
+.B @weather_revamped_comfortable_color
+The style #{weather_color} prints at 18 to 23 degrees Celsius. The default is #[fg=green].
+.TP
+.B @weather_revamped_hot_color
+The style #{weather_color} prints at 24 to 31 degrees Celsius. The default is #[fg=yellow].
+.TP
+.B @weather_revamped_very_hot_color
+The style #{weather_color} prints at 32 and up degrees Celsius. The default is #[fg=red].
+.TP
+.B @weather_revamped_freezing_icon
+What #{weather_icon} prints at below 0 degrees Celsius. The default is none.
+.TP
+.B @weather_revamped_cold_icon
+What #{weather_icon} prints at 0 to 9 degrees Celsius. The default is none.
+.TP
+.B @weather_revamped_cool_icon
+What #{weather_icon} prints at 10 to 17 degrees Celsius. The default is none.
+.TP
+.B @weather_revamped_comfortable_icon
+What #{weather_icon} prints at 18 to 23 degrees Celsius. The default is none.
+.TP
+.B @weather_revamped_hot_icon
+What #{weather_icon} prints at 24 to 31 degrees Celsius. The default is none.
+.TP
+.B @weather_revamped_very_hot_icon
+What #{weather_icon} prints at 32 and up degrees Celsius. The default is none.
+.TP
+.B @weather_revamped_show_condition_icon
+off empties #{weather_condition_icon}. The default is on.
+.TP
+.B @weather_revamped_clear_condition_icon
+What #{weather_condition_icon} prints for a clear sky. The default is a Nerd Font Material Design glyph.
+.TP
+.B @weather_revamped_clouds_condition_icon
+What #{weather_condition_icon} prints for a clouds sky. The default is a Nerd Font Material Design glyph.
+.TP
+.B @weather_revamped_rain_condition_icon
+What #{weather_condition_icon} prints for a rain sky. The default is a Nerd Font Material Design glyph.
+.TP
+.B @weather_revamped_snow_condition_icon
+What #{weather_condition_icon} prints for a snow sky. The default is a Nerd Font Material Design glyph.
+.TP
+.B @weather_revamped_storm_condition_icon
+What #{weather_condition_icon} prints for a storm sky. The default is a Nerd Font Material Design glyph.
+.TP
+.B @weather_revamped_fog_condition_icon
+What #{weather_condition_icon} prints for a fog sky. The default is a Nerd Font Material Design glyph.
+.TP
+.B @weather_revamped_clear_tint
+The style #{weather_condition_tint} prints for a clear sky. The default is #[fg=yellow].
+.TP
+.B @weather_revamped_clouds_tint
+The style #{weather_condition_tint} prints for a clouds sky. The default is #[fg=brightblack].
+.TP
+.B @weather_revamped_rain_tint
+The style #{weather_condition_tint} prints for a rain sky. The default is #[fg=blue].
+.TP
+.B @weather_revamped_snow_tint
+The style #{weather_condition_tint} prints for a snow sky. The default is #[fg=white].
+.TP
+.B @weather_revamped_storm_tint
+The style #{weather_condition_tint} prints for a storm sky. The default is #[fg=magenta].
+.TP
+.B @weather_revamped_fog_tint
+The style #{weather_condition_tint} prints for a fog sky. The default is #[fg=brightblack].
+.TP
+.B @weather_revamped_render
+jobs runs one status call per placeholder; options reads tmux options the daemon fills, so a status refresh starts no process. The default is jobs.
+.TP
+.B @weather_revamped_interval
+Seconds between two ticks of the daemon in the options render mode. The default is 60.
+.TP
+.B @weather_revamped_fixed_width
+on pads #{weather_temp} on the left to five characters. The default is off.
+.TP
+.B @weather_revamped_temp_width
+The width #{weather_temp} is padded to on the left. It wins over the fixed width, and a longer value is never cut. The default is none.
+.TP
+.B @revamped_theme
+The theme of every tmux-revamped tool, when nothing else sets one. The default
+is
+.BR kodougu .
+.PP
+The stored reading of a place lives in
+.BI @weather_revamped_value_ place
+with the time of the last try, in
+.BI @weather_revamped_ place _ok_ts ,
+the time of the last answer, in
+.BI @weather_revamped_ place _pressure_prev
+and in
+.BI @weather_revamped_alert_ place ,
+where the place has every character other than a plain letter, a digit or an
+underscore written as an underscore, and no place is auto. apply records
+the placeholders the status line uses in
+.BR @weather_revamped_published ,
+the daemon writes each one to
+.BI @weather_revamped_out_ name
+and keeps its process id in
+.BR @weather_revamped_ticker_pid .
+.SH EXIT STATUS
+0 on success, 1 on any failure.
+.SH SEE ALSO
+.BR tmux (1),
+.BR curl (1),
+.BR gum (1)

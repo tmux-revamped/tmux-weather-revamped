@@ -1,0 +1,3 @@
+$ weather-revamped
+weather-revamped: no command given. run 'weather-revamped help' for usage.
+exit 1

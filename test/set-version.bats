@@ -4,9 +4,9 @@
 setup() {
   SOURCE="$(cd "${BATS_TEST_DIRNAME:-.}/.." && pwd)/.github/scripts/set-version.sh"
   WORK="$(mktemp -d "${BATS_TMPDIR:-/tmp}/set-version.XXXXXX")"
-  mkdir -p "${WORK}/.github/scripts" "${WORK}/src/lib/utils"
+  mkdir -p "${WORK}/.github/scripts" "${WORK}/lib"
   cp -f "${SOURCE}" "${WORK}/.github/scripts/set-version.sh"
-  CONSTANTS="${WORK}/src/lib/utils/constants.sh"
+  CONSTANTS="${WORK}/lib/core.sh"
 }
 
 teardown() {
@@ -38,7 +38,7 @@ stamp() {
 
 @test "stamps the template's version constant" {
   # Arrange
-  write_constants 'readonly SCROLL_REVAMPED_VERSION="1.0.0"'
+  write_constants 'readonly WEATHER_REVAMPED_VERSION="1.0.0"'
 
   # Act
   stamp 1.1.0
@@ -46,7 +46,7 @@ stamp() {
   # Assert
   [[ "${status}" -eq 0 ]]
   actual="$(cat "${CONSTANTS}")"
-  [[ "${actual}" == 'readonly SCROLL_REVAMPED_VERSION="1.1.0"' ]]
+  [[ "${actual}" == 'readonly WEATHER_REVAMPED_VERSION="1.1.0"' ]]
 }
 
 @test "refuses a version that is not dotted digits" {

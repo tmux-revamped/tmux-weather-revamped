@@ -3,7 +3,7 @@ set -eu
 
 version=${1:?version required}
 root=$(cd "$(dirname "$0")/../.." && pwd)
-constants="${root}/src/lib/utils/constants.sh"
+constants="${root}/lib/core.sh"
 pattern='^readonly [A-Z_]*(_REVAMPED|TMUX_PLUGIN_TEMPLATE)_VERSION="[0-9][0-9.]*"$'
 
 case "${version}" in

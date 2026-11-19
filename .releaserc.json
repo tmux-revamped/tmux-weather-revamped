@@ -1,8 +1,22 @@
 {
   "branches": ["main"],
   "plugins": [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE:", "BREAKING-CHANGE:"]
+        }
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE:", "BREAKING-CHANGE:"]
+        }
+      }
+    ],
     [
       "@semantic-release/changelog",
       {
@@ -19,7 +33,7 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "src/lib/utils/constants.sh"],
+        "assets": ["CHANGELOG.md", "lib/core.sh"],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],

@@ -1,0 +1,4 @@
+$ weather-revamped version
+weather-revamped <version>
+tmux: 3.8
+exit 0

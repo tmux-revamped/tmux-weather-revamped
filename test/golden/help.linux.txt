@@ -1,0 +1,144 @@
+$ weather-revamped help
+weather-revamped - weather from wttr.in in the status bar
+
+usage:
+  weather-revamped apply                  bind the keys and fill the
+                                          placeholders
+  weather-revamped list                   print what apply would send to tmux
+  weather-revamped status NAME [PLACE]    print one placeholder, for the
+                                          first location or for PLACE
+  weather-revamped refresh [PLACE]        fetch the weather now
+  weather-revamped card [PLACE]           print the whole reading as a table
+  weather-revamped popup [PLACE]          open the card in a tmux popup
+  weather-revamped daemon                 publish the placeholders on every
+                                          tick, for the options render mode
+  weather-revamped doctor                 check this machine
+  weather-revamped version                print the version
+  weather-revamped help                   print this page
+
+keys:
+  --popup-key KEY            the prefix key for the forecast popup, or off
+  --refresh-key KEY          a prefix key that fetches now; none by default
+
+reading:
+  --location PLACE           a city or place; empty lets wttr.in locate you
+                             by IP
+  --locations LIST           places separated by semicolons; the first one
+                             fills the placeholders
+  --units m|u                m for Celsius and km<path>, u for Fahrenheit and mph;
+                             f, fahrenheit and imperial are read as u
+  --fetch-minutes MINUTES    how long a reading stays fresh, 1 or more
+  --alerts on|off            on fetches the alert address after each reading
+  --alert-url URL            the alert address; {loc} becomes the place
+  --notify 0|1               1 sends a desktop notification for a new alert
+  --render MODE              jobs or options
+  --interval SECONDS         seconds between ticks in the options mode
+
+formats:
+  --hide-units on|off        on drops the C or F from #{weather_temp}
+  --fixed-width on|off       on pads the temperature to five characters
+  --temp-width COUNT         the width of the temperature
+  --show-condition-icon on|off
+                             off empties #{weather_condition_icon}
+  --SKY-condition-icon TEXT  the icon of one sky: clear, clouds, rain, snow,
+                             storm or fog
+  --SKY-tint STYLE           what #{weather_condition_tint} prints for a sky
+  --BAND-color STYLE         what #{weather_color} prints in one band:
+                             freezing, cold, cool, comfortable, hot or
+                             very-hot
+  --BAND-icon TEXT           what #{weather_icon} prints in one band
+  --uv-LEVEL-color STYLE     what #{weather_uv_color} prints at one level:
+                             low, moderate, high, very-high or extreme
+  --stale-color STYLE        what #{weather_stale_color} prints once the
+                             last answer is older than three intervals
+  --umbrella-text TEXT       what #{weather_umbrella} prints; {chance}
+                             becomes the rain chance
+  --umbrella-threshold PERCENT
+                             the rain chance that shows the umbrella text
+  --pressure-delta HPA       the change that counts as rising or falling
+  --pressure-rising TEXT     the mark of a rising pressure
+  --pressure-falling TEXT    the mark of a falling pressure
+  --pressure-steady TEXT     the mark of a steady pressure
+  --alert-prefix TEXT        text before #{weather_alert}
+
+output:
+  --json                     list prints one JSON object
+  --theme NAME               the look: kodougu, catppuccin-mocha,
+                             catppuccin-latte, dracula, nord, gruvbox,
+                             tokyo-night or mono
+
+environment:
+  WEATHER_REVAMPED_<SETTING>   the same as the option of that name, such as
+                               WEATHER_REVAMPED_UNITS for --units
+  WEATHER_REVAMPED_THEME       the look, when --theme is not given
+  WEATHER_REVAMPED_ACCENT      a colour such as #CBA6F7 for the accent
+  KODOUGU_THEME                the family look, when neither is given
+  KODOUGU_ACCENT               the family accent, when the tool's is unset
+  NO_COLOR                     turn colour off
+
+tmux options:
+  @weather_revamped_popup_key           the forecast popup key (default M-w)
+  @weather_revamped_refresh_key         a key that fetches now (default none)
+  @weather_revamped_location            city or place (default none, by IP)
+  @weather_revamped_locations           places separated by semicolons
+                                        (default none)
+  @weather_revamped_units               m or u (default m)
+  @weather_revamped_fetch_minutes       minutes a reading stays fresh
+                                        (default 15)
+  @weather_revamped_alerts              on or off (default off)
+  @weather_revamped_alert_url           alert address (default none)
+  @weather_revamped_alert_prefix        text before the alert (default none)
+  @weather_revamped_notify              1 notifies of a new alert (default 0)
+  @weather_revamped_render              jobs or options (default jobs)
+  @weather_revamped_interval            seconds between ticks (default 60)
+  @weather_revamped_hide_units          on or off (default off)
+  @weather_revamped_fixed_width         on or off (default off)
+  @weather_revamped_temp_width          width of the temperature
+                                        (default none)
+  @weather_revamped_show_condition_icon on or off (default on)
+  @weather_revamped_<sky>_condition_icon
+                                        icon of one sky (default a Nerd Font
+                                        glyph)
+  @weather_revamped_<sky>_tint          style of one sky (default yellow for
+                                        clear, brightblack for clouds and
+                                        fog, blue for rain, white for snow,
+                                        magenta for storm)
+  @weather_revamped_<band>_color        style of one band (default blue,
+                                        cyan, green, green, yellow, red)
+  @weather_revamped_<band>_icon         icon of one band (default none)
+  @weather_revamped_uv_<level>_color    style of one UV level (default
+                                        green, yellow, colour208, red,
+                                        magenta)
+  @weather_revamped_stale_color         style of a stale reading
+                                        (default "#[dim]")
+  @weather_revamped_umbrella_text       umbrella text (default none)
+  @weather_revamped_umbrella_threshold  rain chance that shows it
+                                        (default 50)
+  @weather_revamped_pressure_delta      hPa that count as a change
+                                        (default 1)
+  @weather_revamped_pressure_rising     rising mark (default ^)
+  @weather_revamped_pressure_falling    falling mark (default v)
+  @weather_revamped_pressure_steady     steady mark (default =)
+  @revamped_theme                       the family look (default kodougu)
+
+notes:
+  NAME is weather, temp, feels_like, wind, humidity, pressure,
+  pressure_trend, precip, rain_chance, umbrella, uv, uv_color, dew_point,
+  dew_comfort, moon, sunrise, sunset, forecast, today_high, today_low,
+  tomorrow_high, tomorrow_low, condition_icon, condition_tint, color, icon,
+  stale_color or alert. The placeholders are #{weather} and
+  #{weather_<name>}. Each prints the stored reading at once, and starts one
+  background fetch when the reading is older than the fetch interval. An
+  answer that says the location is unknown is dropped and the last reading
+  stays. With --render options each placeholder reads a tmux option that a
+  background process fills on every tick, so a status refresh starts no
+  process. An on or off setting also reads 1, yes and true as on, and 0, no
+  and false as off. A tmux option that holds any other value takes its
+  default, and doctor names it.
+
+examples:
+  weather-revamped status weather
+  weather-revamped card Lisbon
+  weather-revamped --units u --location "New York" apply
+  weather-revamped list --json
+exit 0

@@ -1,0 +1,81 @@
+#compdef weather-revamped
+
+_weather_revamped() {
+  local -a commands
+  commands=(
+    'apply:bind the keys and fill the status placeholders'
+    'list:print every command apply would send'
+    'status:print one placeholder'
+    'refresh:fetch the weather now'
+    'card:print the whole reading as a table'
+    'popup:open the card in a tmux popup'
+    'daemon:publish the placeholders on every tick'
+    'doctor:check this machine'
+    'version:print the version'
+    'help:print the help page'
+  )
+
+  _arguments \
+    '--json[list prints one JSON object]' \
+    '--theme[colours of the terminal interface]:theme:(kodougu catppuccin-mocha catppuccin-latte dracula nord gruvbox tokyo-night mono)' \
+    '--popup-key[key of the forecast popup]:value:' \
+    '--refresh-key[key that fetches now]:value:' \
+    '--location[city or place]:value:' \
+    '--locations[places separated by semicolons]:value:' \
+    '--units[m or u]:value:(m u)' \
+    '--fetch-minutes[minutes a reading stays fresh]:value:' \
+    '--hide-units[drop the C or F of the temperature]:value:(on off)' \
+    '--alerts[fetch the alert address]:value:(on off)' \
+    '--alert-url[alert address]:value:' \
+    '--alert-prefix[text before the alert]:value:' \
+    '--notify[notify of a new alert]:value:(0 1)' \
+    '--umbrella-text[umbrella text]:value:' \
+    '--umbrella-threshold[rain chance that shows the umbrella text]:value:' \
+    '--stale-color[style of a stale reading]:value:' \
+    '--pressure-delta[hPa that count as a change]:value:' \
+    '--pressure-rising[mark of a rising pressure]:value:' \
+    '--pressure-falling[mark of a falling pressure]:value:' \
+    '--pressure-steady[mark of a steady pressure]:value:' \
+    '--uv-low-color[style of a low UV index]:value:' \
+    '--uv-moderate-color[style of a moderate UV index]:value:' \
+    '--uv-high-color[style of a high UV index]:value:' \
+    '--uv-very-high-color[style of a very high UV index]:value:' \
+    '--uv-extreme-color[style of a extreme UV index]:value:' \
+    '--freezing-color[style of the freezing band]:value:' \
+    '--cold-color[style of the cold band]:value:' \
+    '--cool-color[style of the cool band]:value:' \
+    '--comfortable-color[style of the comfortable band]:value:' \
+    '--hot-color[style of the hot band]:value:' \
+    '--very-hot-color[style of the very hot band]:value:' \
+    '--freezing-icon[icon of the freezing band]:value:' \
+    '--cold-icon[icon of the cold band]:value:' \
+    '--cool-icon[icon of the cool band]:value:' \
+    '--comfortable-icon[icon of the comfortable band]:value:' \
+    '--hot-icon[icon of the hot band]:value:' \
+    '--very-hot-icon[icon of the very hot band]:value:' \
+    '--show-condition-icon[show the icon of the sky]:value:(on off)' \
+    '--clear-condition-icon[icon of a clear sky]:value:' \
+    '--clouds-condition-icon[icon of a clouds sky]:value:' \
+    '--rain-condition-icon[icon of a rain sky]:value:' \
+    '--snow-condition-icon[icon of a snow sky]:value:' \
+    '--storm-condition-icon[icon of a storm sky]:value:' \
+    '--fog-condition-icon[icon of a fog sky]:value:' \
+    '--clear-tint[style of a clear sky]:value:' \
+    '--clouds-tint[style of a clouds sky]:value:' \
+    '--rain-tint[style of a rain sky]:value:' \
+    '--snow-tint[style of a snow sky]:value:' \
+    '--storm-tint[style of a storm sky]:value:' \
+    '--fog-tint[style of a fog sky]:value:' \
+    '--render[jobs or options]:value:(jobs options)' \
+    '--interval[seconds between ticks]:value:' \
+    '--fixed-width[pad the temperature to five characters]:value:(on off)' \
+    '--temp-width[width of the temperature]:value:' \
+    '1:command:->command' \
+    '2:name:(weather temp feels_like wind humidity pressure pressure_trend precip rain_chance umbrella uv uv_color dew_point dew_comfort moon sunrise sunset forecast today_high today_low tomorrow_high tomorrow_low condition_icon condition_tint color icon stale_color alert)'
+
+  if [[ "${state}" == command ]]; then
+    _describe 'command' commands
+  fi
+}
+
+_weather_revamped "$@"

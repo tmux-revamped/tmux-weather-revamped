@@ -1,0 +1,3 @@
+$ weather-revamped --frobnicate
+weather-revamped: unknown option '--frobnicate'. run 'weather-revamped help' for usage.
+exit 1

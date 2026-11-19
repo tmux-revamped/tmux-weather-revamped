@@ -1,0 +1,13 @@
+$ weather-revamped doctor
+tmux               ok       <path>, 3.8
+curl               ok       <path>, 8.7.1
+reading            warn     none yet for the current location: run weather-revamped refresh
+settings           ok       every option holds a value it knows
+notifier           warn     no osascript or notify-send, so notifications stay in the status line
+keys               ok       every key it binds is free or its own
+gum                ok       <path>
+awk                ok       <path>, <flavor>
+sed                ok       <path>, <flavor>
+tr                 ok       <path>, <flavor>
+date               ok       <path>, <flavor>
+exit 0

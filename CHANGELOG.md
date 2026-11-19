@@ -1,5 +1,28 @@
 # Changelog
 
+# [3.0.0](https://github.com/tmux-revamped/tmux-weather-revamped/compare/v2.0.3...v3.0.0) (2026-11-19)
+
+
+* feat!: rewrite the plugin in POSIX sh ([2ceb539](https://github.com/tmux-revamped/tmux-weather-revamped/commit/2ceb5397dd0173956c48233595f3768f1d72132a))
+
+
+### BREAKING CHANGES
+
+* the script moved from src/weather.sh to
+bin/weather-revamped, so a status line or a binding that calls
+src/weather.sh by hand must call bin/weather-revamped status NAME, or
+the matching command. The options @tmux-weather-location, -locations,
+-units, -hide-units, -alerts, -alert-url, -popup-key and -refresh-key
+are now @weather_revamped_location, _locations, _units, _hide_units,
+_alerts, _alert_url, _popup_key and _refresh_key.
+@tmux-weather-interval is now @weather_revamped_fetch_minutes, still
+in minutes, default 15, and zero is refused;
+@weather_revamped_interval stays the tick of the options mode. The
+refresh key runs in the background and prints nothing. The
+doctor command prints the family's rows. bash is no longer required.
+A tmux option set to nothing now means its default, where a tint or
+a stale colour set to nothing used to print nothing.
+
 ## [2.0.3] - 2026-11-17
 
 ### Fixed
